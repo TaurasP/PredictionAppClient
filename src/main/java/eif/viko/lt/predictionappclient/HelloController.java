@@ -4,10 +4,7 @@ import eif.viko.lt.predictionappclient.Services.*;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
-import javafx.scene.control.Button;
-import javafx.scene.control.Tab;
-import javafx.scene.control.TextArea;
-import javafx.scene.control.TextField;
+import javafx.scene.control.*;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.VBox;
@@ -17,6 +14,25 @@ import java.net.URL;
 import java.util.ResourceBundle;
 
 public class HelloController implements Initializable {
+
+    @FXML
+    private Label regLabel;
+
+    @FXML
+    private TextField emailRegField;
+
+    @FXML
+    private TextField nameRegField;
+
+    @FXML
+    private TextField passwordRegField;
+
+    @FXML
+    private Button regBtn;
+
+    @FXML
+    private VBox regPanelBox;
+
 
     @FXML
     private TextField password;
@@ -36,6 +52,12 @@ public class HelloController implements Initializable {
 
     @FXML
     private Text mainTabLabel;
+
+    @FXML
+    private Tab regTab;
+
+    @FXML
+    private Tab loginTab;
 
     @FXML
     private Tab chatTab;
@@ -60,11 +82,12 @@ public class HelloController implements Initializable {
     public void initialize(URL url, ResourceBundle resourceBundle) {
 
 
-        //SecureStorage.clearToken();
+//        SecureStorage.clearToken();
         boolean isAuthenticated = SecureStorage.getToken() == null;
         authPanelBox.setVisible(isAuthenticated);
         chatTab.setDisable(isAuthenticated);
         predictionTab.setDisable(isAuthenticated);
+        regPanelBox.setVisible(isAuthenticated);
         mainTabLabel.setText(SecureStorage.getToken());
         chatBotAnswerTextArea.setText("Sveiki! Užduokite klausimą iš Java programavimo kalbos.\n");
 
@@ -117,6 +140,17 @@ public class HelloController implements Initializable {
         }
     }
 
+    @FXML
+    void register(ActionEvent event) {
+        String email = emailRegField.getText();
+        String username = nameRegField.getText();
+        String password = passwordRegField.getText();
+
+        if (email != null && username != null && password != null) {
+            authService.register(email, username, password);
+            regLabel.setText("User " + nameRegField.getText() + " created successfully!");
+        }
+    }
 
     @FXML
     void login(ActionEvent event) {
@@ -131,6 +165,7 @@ public class HelloController implements Initializable {
                     authPanelBox.setVisible(false);
                     mainTabLabel.setText("Sveiki prisijungę");
                     logoutBtn.setVisible(true);
+                    regTab.setDisable(true);
                     chatTab.setDisable(false);
                     predictionTab.setDisable(false);
                 }
@@ -151,7 +186,11 @@ public class HelloController implements Initializable {
     void logout(ActionEvent event) {
         SecureStorage.clearToken();
         authPanelBox.setVisible(true);
+        mainTabLabel.setText("");
         logoutBtn.setVisible(false);
+        regTab.setDisable(false);
+        chatTab.setDisable(true);
+        predictionTab.setDisable(true);
     }
 
 }

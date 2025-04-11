@@ -2,7 +2,6 @@ module eif.viko.lt.predictionappclient {
     requires javafx.controls;
     requires javafx.graphics;
     requires javafx.fxml;
-    requires java.base;
     requires java.prefs;
     requires java.sql;
     requires com.google.gson;
