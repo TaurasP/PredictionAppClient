@@ -89,4 +89,20 @@
     <Tab fx:id="predictionTab" text="Prognozavimo modulis">
         <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0" />
     </Tab>
+   <Tab fx:id="profileTab" text="Profilis">
+     <content>
+       <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
+            <children>
+               <Text fx:id="profileEmailText" layoutX="80.0" layoutY="27.0" strokeType="OUTSIDE" strokeWidth="0.0" text="El. paštas" />
+               <Label layoutX="14.0" layoutY="14.0" text="El. paštas:" />
+               <Label layoutX="14.0" layoutY="30.0" text="Rolė:">
+                  <padding>
+                     <Insets top="10.0" />
+                  </padding>
+               </Label>
+               <Text fx:id="profileRoleText" layoutX="81.0" layoutY="53.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Rolė" />
+            </children>
+         </AnchorPane>
+     </content>
+   </Tab>
 </TabPane>

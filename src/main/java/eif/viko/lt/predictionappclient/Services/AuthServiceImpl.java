@@ -30,8 +30,10 @@ public class AuthServiceImpl {
                     String token = response.body().getToken();
                     System.out.println("JWT TOKENAS: " + token);
                     SecureStorage.saveToken(token);
+                    SecureStorage.saveEmail(response.body().getEmail());
+                    SecureStorage.saveRole(response.body().getRole());
                     callback.onLoginSuccess(token);
-                }else{
+                } else{
                     System.out.println("LOGIN FAILED: " + response.message());
                 }
             }

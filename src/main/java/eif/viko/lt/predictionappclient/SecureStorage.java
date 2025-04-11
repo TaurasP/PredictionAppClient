@@ -14,4 +14,26 @@ public class SecureStorage {
     public static void clearToken() {
         prefs.remove("token");
     }
+
+
+    public static void saveEmail(String email) {
+        prefs.put("email", email);
+    }
+    public static String getEmail() {
+        return prefs.get("email", null);
+    }
+    public static void clearEmail() {
+        prefs.remove("email");
+    }
+
+
+    public static void saveRole(String role) {
+        prefs.put("role", role);
+    }
+    public static String getRole() {
+        return prefs.get("role", null);
+    }
+    public static void clearRole() {
+        prefs.remove("role");
+    }
 }

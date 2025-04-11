@@ -1,5 +1,6 @@
 package eif.viko.lt.predictionappclient;
 
+import eif.viko.lt.predictionappclient.Entities.Role;
 import eif.viko.lt.predictionappclient.Services.*;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -16,77 +17,71 @@ import java.util.ResourceBundle;
 public class HelloController implements Initializable {
 
     @FXML
+    private Tab regTab;
+    @FXML
+    private VBox regPanelBox;
+    @FXML
     private Label regLabel;
-
     @FXML
     private TextField emailRegField;
-
     @FXML
     private TextField nameRegField;
-
     @FXML
     private TextField passwordRegField;
-
     @FXML
     private Button regBtn;
 
-    @FXML
-    private VBox regPanelBox;
-
-
-    @FXML
-    private TextField password;
-
-    @FXML
-    private TextField username;
-
-    @FXML
-    private Button loginBtn;
-
-    @FXML
-    private Button logoutBtn;
-
-    @FXML
-    private VBox authPanelBox;
-
-
-    @FXML
-    private Text mainTabLabel;
-
-    @FXML
-    private Tab regTab;
 
     @FXML
     private Tab loginTab;
+    @FXML
+    private VBox authPanelBox;
+    @FXML
+    private Text mainTabLabel;
+    @FXML
+    private TextField username;
+    @FXML
+    private TextField password;
+    @FXML
+    private Button loginBtn;
+    @FXML
+    private Button logoutBtn;
+
 
     @FXML
     private Tab chatTab;
+    @FXML
+    private TextArea chatBotAnswerTextArea;
+    @FXML
+    private TextField chatBotMessageInput;
+
 
     @FXML
     private Tab predictionTab;
 
 
     @FXML
-    private TextArea chatBotAnswerTextArea;
-
+    private Tab profileTab;
     @FXML
-    private TextField chatBotMessageInput;
+    private Text profileEmailText;
+    @FXML
+    private Text profileRoleText;
 
 
     private final AuthServiceImpl authService = new AuthServiceImpl();
 
     private final ChatBotServiceImpl chatBotService = new ChatBotServiceImpl();
 
-
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
 
-
-//        SecureStorage.clearToken();
+        clearSecureStorage();
+        logoutBtn.setVisible(false);
         boolean isAuthenticated = SecureStorage.getToken() == null;
         authPanelBox.setVisible(isAuthenticated);
         chatTab.setDisable(isAuthenticated);
         predictionTab.setDisable(isAuthenticated);
+        profileTab.setDisable(isAuthenticated);
         regPanelBox.setVisible(isAuthenticated);
         mainTabLabel.setText(SecureStorage.getToken());
         chatBotAnswerTextArea.setText("Sveiki! Užduokite klausimą iš Java programavimo kalbos.\n");
@@ -95,8 +90,6 @@ public class HelloController implements Initializable {
         chatBotMessageInput.setOnKeyPressed(this::handleKeyPress);
 
     }
-
-
 
     private void handleKeyPress(KeyEvent event) {
         if (event.getCode() == KeyCode.ENTER) {
@@ -154,43 +147,65 @@ public class HelloController implements Initializable {
 
     @FXML
     void login(ActionEvent event) {
-
         String user = username.getText();
         String pass = password.getText();
 
-        if (user != null && pass != null)
+        if (user != null && pass != null) {
             authService.login(user, pass, new LoginCallback() {
                 @Override
                 public void onLoginSuccess(String token) {
+                    boolean isAdmin = SecureStorage.getRole() != null && SecureStorage.getRole().equals(Role.ADMIN.name());
+
                     authPanelBox.setVisible(false);
                     mainTabLabel.setText("Sveiki prisijungę");
                     logoutBtn.setVisible(true);
                     regTab.setDisable(true);
                     chatTab.setDisable(false);
-                    predictionTab.setDisable(false);
+                    predictionTab.setDisable(!isAdmin);
+                    profileTab.setDisable(false);
+                    profileEmailText.setText(SecureStorage.getEmail());
+                    profileRoleText.setText(getRoleDisplayName(SecureStorage.getRole()));
                 }
 
                 @Override
                 public void onLoginFailure(String errorMessage) {
-                    chatTab.setDisable(false);
-                    predictionTab.setDisable(false);
+                    chatTab.setDisable(true);
+                    predictionTab.setDisable(true);
+                    profileTab.setDisable(true);
                 }
             });
+        }
 
 //        AuthServiceImpl authService = new AuthServiceImpl();
 //        if (username != null && password != null)
 //            authService.login(username.getText(), password.getText());
     }
 
+    public String getRoleDisplayName(String roleName) {
+        for (Role role : Role.values()) {
+            if (role.name().equalsIgnoreCase(roleName)) {
+                return role.getDisplayName();
+            }
+        }
+        throw new IllegalArgumentException("Invalid role: " + roleName);
+    }
+
+    public void clearSecureStorage() {
+        SecureStorage.clearToken();
+        SecureStorage.clearEmail();
+        SecureStorage.clearRole();
+    }
+
     @FXML
     void logout(ActionEvent event) {
-        SecureStorage.clearToken();
+        clearSecureStorage();
         authPanelBox.setVisible(true);
         mainTabLabel.setText("");
         logoutBtn.setVisible(false);
         regTab.setDisable(false);
         chatTab.setDisable(true);
         predictionTab.setDisable(true);
+        profileTab.setDisable(true);
     }
 
 }
