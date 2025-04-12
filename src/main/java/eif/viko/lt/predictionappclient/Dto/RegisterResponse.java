@@ -2,7 +2,6 @@ package eif.viko.lt.predictionappclient.Dto;
 
 public class RegisterResponse {
     private Long id;
-    private String username;
     private String email;
     private String role;
     private boolean enabled;
@@ -10,9 +9,8 @@ public class RegisterResponse {
     public RegisterResponse() {
     }
 
-    public RegisterResponse(Long id, String username, String email, String role, boolean enabled) {
+    public RegisterResponse(Long id, String email, String role, boolean enabled) {
         this.id = id;
-        this.username = username;
         this.email = email;
         this.role = role;
         this.enabled = enabled;
@@ -24,14 +22,6 @@ public class RegisterResponse {
 
     public void setId(Long id) {
         this.id = id;
-    }
-
-    public String getUsername() {
-        return username;
-    }
-
-    public void setUsername(String username) {
-        this.username = username;
     }
 
     public String getEmail() {

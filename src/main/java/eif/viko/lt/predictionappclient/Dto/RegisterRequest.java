@@ -3,14 +3,14 @@ package eif.viko.lt.predictionappclient.Dto;
 public class RegisterRequest {
     private String email;
     private String password;
-    private String username;
+    private String role;
 
     public RegisterRequest() {}
 
-    public RegisterRequest(String email, String password, String username) {
+    public RegisterRequest(String email, String password, String role) {
         this.email = email;
         this.password = password;
-        this.username = username;
+        this.role = role;
     }
 
     public String getEmail() {
@@ -21,7 +21,7 @@ public class RegisterRequest {
         return password;
     }
 
-    public String getUsername() {
-        return username;
+    public String getRole() {
+        return role;
     }
 }

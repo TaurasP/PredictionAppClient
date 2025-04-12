@@ -1,5 +1,6 @@
 package eif.viko.lt.predictionappclient;
 
+import eif.viko.lt.predictionappclient.Dto.StudentRequest;
 import eif.viko.lt.predictionappclient.Entities.Role;
 import eif.viko.lt.predictionappclient.Services.*;
 import javafx.event.ActionEvent;
@@ -25,7 +26,7 @@ public class HelloController implements Initializable {
     @FXML
     private TextField emailRegField;
     @FXML
-    private TextField nameRegField;
+    private ComboBox<String> roleComboBox;
     @FXML
     private TextField passwordRegField;
     @FXML
@@ -58,6 +59,10 @@ public class HelloController implements Initializable {
 
     @FXML
     private Tab predictionTab;
+    @FXML
+    private Button predictedGradeBtn;
+    @FXML
+    private Text predictedGradeText;
 
 
     @FXML
@@ -72,17 +77,21 @@ public class HelloController implements Initializable {
 
     private final ChatBotServiceImpl chatBotService = new ChatBotServiceImpl();
 
+    private final GradePredictionServiceImpl gradePredictionService = new GradePredictionServiceImpl();
+
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
 
         clearSecureStorage();
-        logoutBtn.setVisible(false);
         boolean isAuthenticated = SecureStorage.getToken() == null;
         authPanelBox.setVisible(isAuthenticated);
+        logoutBtn.setVisible(false);
         chatTab.setDisable(isAuthenticated);
         predictionTab.setDisable(isAuthenticated);
         profileTab.setDisable(isAuthenticated);
         regPanelBox.setVisible(isAuthenticated);
+        roleComboBox.getItems().addAll(Role.ADMIN.getDisplayName(), Role.TEACHER.getDisplayName(), Role.STUDENT.getDisplayName());
+        roleComboBox.setVisible(false);
         mainTabLabel.setText(SecureStorage.getToken());
         chatBotAnswerTextArea.setText("Sveiki! Užduokite klausimą iš Java programavimo kalbos.\n");
 
@@ -136,12 +145,22 @@ public class HelloController implements Initializable {
     @FXML
     void register(ActionEvent event) {
         String email = emailRegField.getText();
-        String username = nameRegField.getText();
         String password = passwordRegField.getText();
+        String role = roleComboBox.getValue() != null ? getRoleNameFromDisplayName(roleComboBox.getValue()) : Role.STUDENT.name();
 
-        if (email != null && username != null && password != null) {
-            authService.register(email, username, password);
-            regLabel.setText("User " + nameRegField.getText() + " created successfully!");
+        if (email != null && password != null) {
+            authService.register(email, password, role, new RegisterCallback() {
+                @Override
+                public void onRegisterSuccess(String message) {
+
+                }
+
+                @Override
+                public void onRegisterFailure(String errorMessage) {
+
+                }
+            });
+            regLabel.setText("User " + email + " created successfully!");
         }
     }
 
@@ -159,9 +178,10 @@ public class HelloController implements Initializable {
                     authPanelBox.setVisible(false);
                     mainTabLabel.setText("Sveiki prisijungę");
                     logoutBtn.setVisible(true);
-                    regTab.setDisable(true);
+                    regTab.setDisable(!isAdmin);
+                    roleComboBox.setVisible(isAdmin);
                     chatTab.setDisable(false);
-                    predictionTab.setDisable(!isAdmin);
+                    predictionTab.setDisable(false);
                     profileTab.setDisable(false);
                     profileEmailText.setText(SecureStorage.getEmail());
                     profileRoleText.setText(getRoleDisplayName(SecureStorage.getRole()));
@@ -175,10 +195,6 @@ public class HelloController implements Initializable {
                 }
             });
         }
-
-//        AuthServiceImpl authService = new AuthServiceImpl();
-//        if (username != null && password != null)
-//            authService.login(username.getText(), password.getText());
     }
 
     public String getRoleDisplayName(String roleName) {
@@ -188,6 +204,15 @@ public class HelloController implements Initializable {
             }
         }
         throw new IllegalArgumentException("Invalid role: " + roleName);
+    }
+
+    public String getRoleNameFromDisplayName(String displayName) {
+        for (Role role : Role.values()) {
+            if (role.getDisplayName().equalsIgnoreCase(displayName)) {
+                return role.name();
+            }
+        }
+        throw new IllegalArgumentException("Invalid display name: " + displayName);
     }
 
     public void clearSecureStorage() {
@@ -207,5 +232,26 @@ public class HelloController implements Initializable {
         predictionTab.setDisable(true);
         profileTab.setDisable(true);
     }
+
+    @FXML
+    void predict(ActionEvent event) {
+        StudentRequest request = new StudentRequest(85, 80, 75, 85);
+        gradePredictionService.predict(request, new GradePredictionCallback() {
+            @Override
+            public void onPredictionSuccess(String predictedGrade) {
+                // Update the UI and print the result
+                predictedGradeText.setText(predictedGrade);
+                System.out.println("Predicted grade (HelloController): " + predictedGrade);
+            }
+
+            @Override
+            public void onPredictionFailure(String errorMessage) {
+                // Handle the error case
+                predictedGradeText.setText("Prediction failed!");
+                System.err.println("Error: " + errorMessage);
+            }
+        });
+    }
+
 
 }

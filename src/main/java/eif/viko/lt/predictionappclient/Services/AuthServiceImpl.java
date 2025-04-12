@@ -11,6 +11,7 @@ import retrofit2.Response;
 import retrofit2.Retrofit;
 
 public class AuthServiceImpl {
+
     private final AuthService authService;
 
     public AuthServiceImpl() {
@@ -20,8 +21,7 @@ public class AuthServiceImpl {
 
     public void login(String username, String password, LoginCallback callback) {
 
-        LoginRequest request = new LoginRequest(username, password);
-        Call<LoginResponse> call = authService.login(request);
+        Call<LoginResponse> call = authService.login(new LoginRequest(username, password));
 
         call.enqueue(new Callback<LoginResponse>() {
             @Override
@@ -45,15 +45,16 @@ public class AuthServiceImpl {
         });
     }
 
-    public void register(String email, String username, String password) {
-        RegisterRequest request = new RegisterRequest(email, password, username);
+    public void register(String email, String password, String role, RegisterCallback callback) {
+        RegisterRequest request = new RegisterRequest(email, password, role);
         Call<RegisterResponse> call = authService.register(request);
 
         call.enqueue(new Callback<RegisterResponse>() {
             @Override
             public void onResponse(Call<RegisterResponse> call, Response<RegisterResponse> response) {
                 if (response.isSuccessful()) {
-                    System.out.println("REGISTER SUCCESS: " + response.body());
+//                    System.out.println("REGISTER SUCCESS: " + response.body());
+                    callback.onRegisterSuccess("REGISTER SUCCESS");
                 } else {
                     System.out.println("REGISTER FAILED: " + response.message());
                 }
@@ -62,6 +63,7 @@ public class AuthServiceImpl {
             @Override
             public void onFailure(Call<RegisterResponse> call, Throwable throwable) {
                 System.out.println("REGISTER FAILED: " + throwable.getMessage());
+                callback.onRegisterFailure(throwable.getMessage());
             }
         });
     }
