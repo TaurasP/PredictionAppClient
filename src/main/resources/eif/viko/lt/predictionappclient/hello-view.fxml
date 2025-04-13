@@ -14,7 +14,7 @@
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Text?>
 
-<TabPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="768.0" prefWidth="1024.0" tabClosingPolicy="UNAVAILABLE" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="eif.viko.lt.predictionappclient.HelloController">
+<TabPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="540.0" prefWidth="1440.0" tabClosingPolicy="UNAVAILABLE" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="eif.viko.lt.predictionappclient.HelloController">
     <Tab fx:id="loginTab" text="Prisijungimo langas">
         <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
          <children>
@@ -107,31 +107,70 @@
          </AnchorPane>
      </content>
    </Tab>
-   <Tab fx:id="gradesTab" text="Pažymiai">
+   <Tab fx:id="studentsTab" text="Studentai">
      <content>
        <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
-           <children>
-               <TableView fx:id="animals" layoutX="201.0" layoutY="86.0" onMouseClicked="#rowClicked" prefHeight="645.0" prefWidth="807.0">
-                   <columns>
-                       <TableColumn fx:id="idCol" prefWidth="75.0" text="ID" />
-                       <TableColumn fx:id="typeCol" prefWidth="75.0" text="Type" />
-                       <TableColumn fx:id="nameCol" prefWidth="75.0" text="Name" />
-                   </columns>
-               </TableView>
-               <VBox layoutX="14.0" layoutY="14.0" prefHeight="200.0" prefWidth="160.0" spacing="5.0">
-                   <children>
-                       <Text strokeType="OUTSIDE" strokeWidth="0.0" text="ID:" />
-                       <TextField fx:id="inputId" disable="true" />
-                       <Text layoutX="10.0" layoutY="23.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Type:" />
-                       <TextField fx:id="inputType" />
-                       <Text layoutX="10.0" layoutY="265.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Name:" />
-                       <TextField fx:id="inputName" />
-                       <Button mnemonicParsing="false" onAction="#submit" prefHeight="25.0" prefWidth="160.0" text="Submit" />
-                   </children>
-               </VBox>
-               <TextField fx:id="searchInput" layoutX="202.0" layoutY="35.0" prefHeight="26.0" prefWidth="805.0" promptText="Keywords" />
-               <Label layoutX="202.0" layoutY="14.0" text="Search:" />
-           </children>
+           <TableView fx:id="studentCoursesTable" layoutX="178.0" layoutY="51.0" onMouseClicked="#studentRowClicked" prefHeight="445.0" prefWidth="1249.0">
+               <columns>
+                  <TableColumn fx:id="studentRowIdCol" prefWidth="47.0" text="ID" />
+                  <TableColumn fx:id="studentNameCol" prefWidth="187.0" text="Studentas" />
+                  <TableColumn fx:id="teacherNameCol" prefWidth="188.0" text="Mokytojas" />
+                  <TableColumn fx:id="courseNameCol" prefWidth="206.0" text="Dalykas" />
+                   <TableColumn fx:id="attendanceCol" prefWidth="93.0" text="Lankomumas" />
+                   <TableColumn fx:id="assignmentsCol" prefWidth="55.0" text="Darbai" />
+                   <TableColumn fx:id="midTermCol" prefWidth="142.0" text="Tarpiniai atsiskaitymai" />
+                  <TableColumn fx:id="finalExamCol" prefWidth="70.0" text="Egzaminas" />
+                  <TableColumn fx:id="gradeCol" prefWidth="69.0" text="Pažymys" />
+                  <TableColumn fx:id="predictedGradeCol" prefWidth="68.0" text="Prognozė" />
+                  <TableColumn fx:id="dateCol" prefWidth="132.0" text="Data" />
+               </columns>
+           </TableView>
+            <Label layoutX="178.0" layoutY="14.0" text="Paieška" />
+            <TextField fx:id="studentSearchInput" layoutX="229.0" layoutY="10.0" prefHeight="25.0" prefWidth="578.0" promptText="Įveskite paieškos tekstą" />
+            <VBox layoutX="14.0" layoutY="35.0" prefHeight="400.0" prefWidth="150.0">
+               <children>
+                  <Label text="Lankomumas" />
+                  <TextField fx:id="attendanceInput" />
+                  <Label text="Darbai">
+                     <VBox.margin>
+                        <Insets top="10.0" />
+                     </VBox.margin>
+                  </Label>
+                  <TextField fx:id="assignmentsInput" />
+                  <Label text="Tarpiniai atsiskaitymai">
+                     <VBox.margin>
+                        <Insets top="10.0" />
+                     </VBox.margin>
+                  </Label>
+                  <TextField fx:id="midTermInput" />
+                  <Label layoutX="10.0" layoutY="333.0" text="Egzaminas">
+                     <VBox.margin>
+                        <Insets top="10.0" />
+                     </VBox.margin></Label>
+                  <TextField fx:id="finalExamInput" />
+                  <Label text="Pažymys">
+                     <VBox.margin>
+                        <Insets top="10.0" />
+                     </VBox.margin>
+                  </Label>
+                  <TextField fx:id="gradeInput" />
+                  <Label text="Prognozė">
+                     <VBox.margin>
+                        <Insets top="10.0" />
+                     </VBox.margin></Label>
+                  <TextField fx:id="predictedGradeInput" disable="true" />
+                  <Button fx:id="updateStudentBtn" mnemonicParsing="false" onAction="#updateStudent" prefHeight="25.0" prefWidth="200.0" text="Atnaujinti">
+                     <VBox.margin>
+                        <Insets top="20.0" />
+                     </VBox.margin>
+                  </Button>
+                  <Button fx:id="predictGradeBtn" mnemonicParsing="false" onAction="#predictGrade" prefHeight="25.0" prefWidth="200.0" text="Prognozuoti pažymį">
+                     <VBox.margin>
+                        <Insets top="80.0" />
+                     </VBox.margin>
+                  </Button>
+               </children>
+            </VBox>
        </AnchorPane>
      </content>
    </Tab>
