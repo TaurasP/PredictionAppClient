@@ -11,6 +11,7 @@ module eif.viko.lt.predictionappclient {
 
 
     opens eif.viko.lt.predictionappclient.Dto to com.google.gson;
+    opens eif.viko.lt.predictionappclient.Entities to javafx.base;
 
     opens eif.viko.lt.predictionappclient to javafx.fxml;
     exports eif.viko.lt.predictionappclient;

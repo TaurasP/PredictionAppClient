@@ -1,14 +1,19 @@
 package eif.viko.lt.predictionappclient;
 
 import eif.viko.lt.predictionappclient.Dto.StudentRequest;
+import eif.viko.lt.predictionappclient.Entities.Animal;
 import eif.viko.lt.predictionappclient.Entities.Role;
 import eif.viko.lt.predictionappclient.Services.*;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.*;
+import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
+import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.Text;
 
@@ -73,6 +78,27 @@ public class HelloController implements Initializable {
     private Text profileRoleText;
 
 
+    @FXML
+    private Tab gradesTab;
+    @FXML
+    private TableView<Animal> animals;
+    @FXML
+    private TableColumn<Animal, Integer> idCol;
+    @FXML
+    private TableColumn<Animal, String> typeCol;
+    @FXML
+    private TableColumn<Animal, String> nameCol;
+    @FXML
+    private TextField inputId;
+    @FXML
+    private TextField inputType;
+    @FXML
+    private TextField inputName;
+    @FXML
+    private TextField searchInput;
+    private ObservableList<Animal> allAnimals = FXCollections.observableArrayList();
+
+
     private final AuthServiceImpl authService = new AuthServiceImpl();
 
     private final ChatBotServiceImpl chatBotService = new ChatBotServiceImpl();
@@ -98,6 +124,74 @@ public class HelloController implements Initializable {
         //Enter simbolio paspaudimas
         chatBotMessageInput.setOnKeyPressed(this::handleKeyPress);
 
+        // Test
+        idCol.setCellValueFactory(new PropertyValueFactory<Animal, Integer>("id"));
+        typeCol.setCellValueFactory(new PropertyValueFactory<Animal, String>("type"));
+        nameCol.setCellValueFactory(new PropertyValueFactory<Animal, String>("name"));
+        initializeAnimals();
+        // Adding listener for dynamic search functionality
+        searchInput.textProperty().addListener((observable, oldValue, newValue) -> {
+            filterTable(newValue);
+        });
+    }
+
+    @FXML
+    void submit(ActionEvent event) {
+        int currentAnimalId = Integer.parseInt(inputId.getText());
+
+        for (Animal animal : allAnimals) {
+            if (animal.getId() == currentAnimalId) {
+                animal.setType(inputType.getText());
+                animal.setName(inputName.getText());
+                break;
+            }
+        }
+
+        animals.setItems(allAnimals); // Refresh the TableView with updated data
+        animals.refresh();
+    }
+
+    @FXML
+    void rowClicked(MouseEvent event) {
+        Animal clickedAnimal = animals.getSelectionModel().getSelectedItem();
+        inputId.setText(String.valueOf(clickedAnimal.getId()));
+        inputType.setText(String.valueOf(clickedAnimal.getType()));
+        inputName.setText(String.valueOf(clickedAnimal.getName()));
+    }
+
+    private void initializeAnimals() {
+        allAnimals.clear(); // Clear the list to avoid duplicates
+
+        allAnimals.add(new Animal(1, "Dog", "Buddy"));
+        allAnimals.add(new Animal(2, "Cat", "Bella"));
+        allAnimals.add(new Animal(3, "Bear", "Bob"));
+        allAnimals.add(new Animal(4, "Squid", "Laila"));
+        allAnimals.add(new Animal(5, "Horse", "Max"));
+        allAnimals.add(new Animal(6, "Rabbit", "Lily"));
+        allAnimals.add(new Animal(7, "Tiger", "Rocky"));
+        allAnimals.add(new Animal(8, "Dolphin", "Blue"));
+        allAnimals.add(new Animal(9, "Penguin", "Snowy"));
+
+        animals.setItems(allAnimals); // Set the initial data for TableView
+    }
+
+    private void filterTable(String keyword) {
+        if (keyword == null || keyword.trim().isEmpty()) {
+            animals.setItems(allAnimals); // Show all records when the search input is empty
+            return;
+        }
+
+        ObservableList<Animal> filteredAnimals = FXCollections.observableArrayList();
+
+        for (Animal animal : allAnimals) {
+            if (animal.getType().toLowerCase().contains(keyword.toLowerCase()) ||
+                    animal.getName().toLowerCase().contains(keyword.toLowerCase())) {
+                filteredAnimals.add(animal);
+            }
+        }
+
+        animals.setItems(filteredAnimals);
+        animals.refresh();
     }
 
     private void handleKeyPress(KeyEvent event) {

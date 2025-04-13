@@ -6,13 +6,15 @@
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.Tab?>
 <?import javafx.scene.control.TabPane?>
+<?import javafx.scene.control.TableColumn?>
+<?import javafx.scene.control.TableView?>
 <?import javafx.scene.control.TextArea?>
 <?import javafx.scene.control.TextField?>
 <?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Text?>
 
-<TabPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="400.0" prefWidth="600.0" tabClosingPolicy="UNAVAILABLE" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="eif.viko.lt.predictionappclient.HelloController">
+<TabPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="768.0" prefWidth="1024.0" tabClosingPolicy="UNAVAILABLE" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="eif.viko.lt.predictionappclient.HelloController">
     <Tab fx:id="loginTab" text="Prisijungimo langas">
         <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
          <children>
@@ -103,6 +105,34 @@
                <Text fx:id="profileRoleText" layoutX="81.0" layoutY="53.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Rolė" />
             </children>
          </AnchorPane>
+     </content>
+   </Tab>
+   <Tab fx:id="gradesTab" text="Pažymiai">
+     <content>
+       <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
+           <children>
+               <TableView fx:id="animals" layoutX="201.0" layoutY="86.0" onMouseClicked="#rowClicked" prefHeight="645.0" prefWidth="807.0">
+                   <columns>
+                       <TableColumn fx:id="idCol" prefWidth="75.0" text="ID" />
+                       <TableColumn fx:id="typeCol" prefWidth="75.0" text="Type" />
+                       <TableColumn fx:id="nameCol" prefWidth="75.0" text="Name" />
+                   </columns>
+               </TableView>
+               <VBox layoutX="14.0" layoutY="14.0" prefHeight="200.0" prefWidth="160.0" spacing="5.0">
+                   <children>
+                       <Text strokeType="OUTSIDE" strokeWidth="0.0" text="ID:" />
+                       <TextField fx:id="inputId" disable="true" />
+                       <Text layoutX="10.0" layoutY="23.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Type:" />
+                       <TextField fx:id="inputType" />
+                       <Text layoutX="10.0" layoutY="265.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Name:" />
+                       <TextField fx:id="inputName" />
+                       <Button mnemonicParsing="false" onAction="#submit" prefHeight="25.0" prefWidth="160.0" text="Submit" />
+                   </children>
+               </VBox>
+               <TextField fx:id="searchInput" layoutX="202.0" layoutY="35.0" prefHeight="26.0" prefWidth="805.0" promptText="Keywords" />
+               <Label layoutX="202.0" layoutY="14.0" text="Search:" />
+           </children>
+       </AnchorPane>
      </content>
    </Tab>
 </TabPane>
