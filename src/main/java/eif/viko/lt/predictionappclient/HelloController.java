@@ -1,5 +1,6 @@
 package eif.viko.lt.predictionappclient;
 
+import eif.viko.lt.predictionappclient.Entities.ChatUser;
 import eif.viko.lt.predictionappclient.Entities.StudentCourseResponse;
 import eif.viko.lt.predictionappclient.Dto.StudentRequest;
 import eif.viko.lt.predictionappclient.Entities.Role;
@@ -67,26 +68,6 @@ public class HelloController implements Initializable {
 
 
     @FXML
-    private Tab predictionTab;
-    @FXML
-    private Button predictedGradeBtn;
-    @FXML
-    private Text predictedGradeText;
-
-
-    @FXML
-    private Tab profileTab;
-    @FXML
-    private Text profileNameText;
-    @FXML
-    private Text profileSurnameText;
-    @FXML
-    private Text profileEmailText;
-    @FXML
-    private Text profileRoleText;
-
-
-    @FXML
     private Tab studentsTab;
     @FXML
     private TableView<StudentCourseResponse> studentCoursesTable;
@@ -133,10 +114,38 @@ public class HelloController implements Initializable {
     private Button predictGradeBtn;
 
 
+    @FXML
+    private Tab coursesTab;
+    @FXML
+    private TextField coursesTabCourseNameInput;
+    @FXML
+    private ComboBox<String> coursesTabTeacherComboBox;
+    @FXML
+    private Button coursesTabSaveBtn;
+
+
+    @FXML
+    private Tab perdictedGradesTab;
+
+
+    @FXML
+    private Tab profileTab;
+    @FXML
+    private Text profileNameText;
+    @FXML
+    private Text profileSurnameText;
+    @FXML
+    private Text profileEmailText;
+    @FXML
+    private Text profileRoleText;
+
+
     private final AuthServiceImpl authService = new AuthServiceImpl();
     private final ChatBotServiceImpl chatBotService = new ChatBotServiceImpl();
     private final GradePredictionServiceImpl gradePredictionService = new GradePredictionServiceImpl();
     private final StudentCourseServiceImpl studentCourseService = new StudentCourseServiceImpl();
+    private final UserServiceImpl userService = new UserServiceImpl();
+    private final CourseServiceImpl courseService = new CourseServiceImpl();
 
 
     @Override
@@ -147,10 +156,11 @@ public class HelloController implements Initializable {
         authPanelBox.setVisible(isAuthenticated);
         logoutBtn.setVisible(false);
         chatTab.setDisable(isAuthenticated);
-        predictionTab.setDisable(isAuthenticated);
         profileTab.setDisable(isAuthenticated);
         studentsTab.setDisable(isAuthenticated);
         regPanelBox.setVisible(isAuthenticated);
+        coursesTab.setDisable(isAuthenticated);
+        perdictedGradesTab.setDisable(isAuthenticated);
         roleComboBox.getItems().addAll(Role.ADMIN.getDisplayName(), Role.TEACHER.getDisplayName(), Role.STUDENT.getDisplayName());
         roleComboBox.setVisible(false);
         mainTabLabel.setText(SecureStorage.getToken());
@@ -159,7 +169,7 @@ public class HelloController implements Initializable {
         //Enter simbolio paspaudimas
         chatBotMessageInput.setOnKeyPressed(this::handleKeyPress);
 
-        studentRowIdCol.setCellValueFactory(new PropertyValueFactory<StudentCourseResponse, Integer>("id"));
+        studentRowIdCol.setCellValueFactory(new PropertyValueFactory<StudentCourseResponse, Integer>("rowId"));
         studentNameCol.setCellValueFactory(new PropertyValueFactory<StudentCourseResponse, String>("studentName"));
         teacherNameCol.setCellValueFactory(new PropertyValueFactory<StudentCourseResponse, String>("teacherName"));
         courseNameCol.setCellValueFactory(new PropertyValueFactory<StudentCourseResponse, String>("courseName"));
@@ -210,11 +220,6 @@ public class HelloController implements Initializable {
     }
 
     @FXML
-    void predictGrade(ActionEvent event) {
-        // todo logic
-    }
-
-    @FXML
     void studentRowClicked(MouseEvent event) {
         StudentCourseResponse clickedStudent = studentCoursesTable.getSelectionModel().getSelectedItem();
         attendanceInput.setText(String.valueOf(clickedStudent.getAttendance()));
@@ -224,6 +229,47 @@ public class HelloController implements Initializable {
         gradeInput.setText(String.valueOf(clickedStudent.getGrade()));
         predictedGradeInput.setText(String.valueOf(clickedStudent.getPredictedGrade()));
     }
+
+    @FXML
+    void predictGrade(ActionEvent event) {
+        StudentRequest request = new StudentRequest(
+                Double.parseDouble(attendanceInput.getText()),
+                Double.parseDouble(assignmentsInput.getText()),
+                Double.parseDouble(midTermInput.getText()),
+                Double.parseDouble(finalExamInput.getText()));
+        gradePredictionService.predict(request, new GradePredictionCallback() {
+            @Override
+            public void onPredictionSuccess(String predictedGrade) {
+                predictedGradeInput.setText(predictedGrade);
+            }
+
+            @Override
+            public void onPredictionFailure(String errorMessage) {
+                predictedGradeInput.setText("Prediction failed!");
+                System.err.println("Error: " + errorMessage);
+            }
+        });
+    }
+
+    @FXML
+    void getUsersByRole(ActionEvent event) {
+        userService.getUsersByRole(new ChaUserCallback() {
+            @Override
+            public void onChaUserSuccess(List<ChatUser> list) {
+                List<String> emailList = list.stream()
+                        .map(user -> getFullNameFromEmail(user.getEmail()))
+                        .toList();
+
+                coursesTabTeacherComboBox.setItems(FXCollections.observableArrayList(emailList));
+            }
+
+            @Override
+            public void onChaUserFailure(String errorMessage) {
+
+            }
+        });
+    }
+
 
     @FXML
     void register(ActionEvent event) {
@@ -257,6 +303,8 @@ public class HelloController implements Initializable {
                 @Override
                 public void onLoginSuccess(String token) {
                     boolean isAdmin = SecureStorage.getRole() != null && SecureStorage.getRole().equals(Role.ADMIN.name());
+                    boolean isTeacher = SecureStorage.getRole() != null && SecureStorage.getRole().equals(Role.TEACHER.name());
+                    boolean isStudent = SecureStorage.getRole() != null && SecureStorage.getRole().equals(Role.STUDENT.name());
 
                     authPanelBox.setVisible(false);
                     mainTabLabel.setText("Sveiki prisijungę");
@@ -265,14 +313,16 @@ public class HelloController implements Initializable {
                     loginTab.setDisable(true);
                     roleComboBox.setVisible(isAdmin);
                     chatTab.setDisable(false);
-                    predictionTab.setDisable(false);
-                    studentsTab.setDisable(false);
+                    studentsTab.setDisable(isStudent);
                     profileTab.setDisable(false);
-                    profileNameText.setText(extractName(getNameFromEmail(SecureStorage.getEmail())));
-                    profileSurnameText.setText(extractSurname(getNameFromEmail(SecureStorage.getEmail())));
+                    coursesTab.setDisable(!isAdmin);
+                    perdictedGradesTab.setDisable(false);
+                    profileNameText.setText(extractName(getFullNameFromEmail(SecureStorage.getEmail())));
+                    profileSurnameText.setText(extractSurname(getFullNameFromEmail(SecureStorage.getEmail())));
                     profileEmailText.setText(SecureStorage.getEmail());
                     profileRoleText.setText(getRoleDisplayName(SecureStorage.getRole()));
                     findAll(null);
+                    getUsersByRole(null);
                     studentSearchInput.textProperty().addListener((observable, oldValue, newValue) -> {
                         filterStudentsTable(newValue);
                     });
@@ -282,7 +332,6 @@ public class HelloController implements Initializable {
                 @Override
                 public void onLoginFailure(String errorMessage) {
                     chatTab.setDisable(true);
-                    predictionTab.setDisable(true);
                     profileTab.setDisable(true);
                 }
             });
@@ -350,25 +399,6 @@ public class HelloController implements Initializable {
     }
 
     @FXML
-    void predict(ActionEvent event) {
-        StudentRequest request = new StudentRequest(85, 80, 75, 85);
-        gradePredictionService.predict(request, new GradePredictionCallback() {
-            @Override
-            public void onPredictionSuccess(String predictedGrade) {
-                // Update the UI and print the result
-                predictedGradeText.setText(predictedGrade);
-            }
-
-            @Override
-            public void onPredictionFailure(String errorMessage) {
-                // Handle the error case
-                predictedGradeText.setText("Prediction failed!");
-                System.err.println("Error: " + errorMessage);
-            }
-        });
-    }
-
-    @FXML
     void findAll(ActionEvent event) {
         studentCourseService.getStudentCourses(new StudentCourseCallback() {
             @Override
@@ -395,6 +425,27 @@ public class HelloController implements Initializable {
     }
 
     @FXML
+    void saveCourse(ActionEvent event) {
+        String courseName = coursesTabCourseNameInput.getText();
+        String teacher = createEmail(coursesTabTeacherComboBox.getValue());
+
+        if (courseName != null && !teacher.isEmpty()) {
+            System.out.println("Course name: " + courseName + ", Teacher: " + teacher + ".");
+            courseService.saveCourse(courseName, teacher, new CourseCallback() {
+                @Override
+                public void onCourseSuccess(String message) {
+
+                }
+
+                @Override
+                public void onCourseFailure(String errorMessage) {
+
+                }
+            });
+        }
+    }
+
+    @FXML
     void logout(ActionEvent event) {
         clearSecureStorage();
         authPanelBox.setVisible(true);
@@ -403,9 +454,10 @@ public class HelloController implements Initializable {
         regTab.setDisable(false);
         loginTab.setDisable(false);
         chatTab.setDisable(true);
-        predictionTab.setDisable(true);
         profileTab.setDisable(true);
         studentsTab.setDisable(true);
+        coursesTab.setDisable(true);
+        perdictedGradesTab.setDisable(true);
         redirectToTab(loginTab);
     }
 

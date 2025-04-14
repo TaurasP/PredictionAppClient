@@ -1,21 +1,25 @@
 package eif.viko.lt.predictionappclient.Entities;
 
-public class StudentCourseResponse {
-
+public class StudentCourseRequest {
     private Long id;
-    private int rowId;
     private double attendance;
     private double assignments;
     private double midterm;
     private double finalExam;
     private String grade;
     private String predictedGrade;
-    private String date;
-    private String courseName;
-    private String teacherName;
-    private String studentName;
 
-    public StudentCourseResponse() {
+    public StudentCourseRequest() {
+    }
+
+    public StudentCourseRequest(Long id, double attendance, double assignments, double midterm, double finalExam, String grade, String predictedGrade) {
+        this.id = id;
+        this.attendance = attendance;
+        this.assignments = assignments;
+        this.midterm = midterm;
+        this.finalExam = finalExam;
+        this.grade = grade;
+        this.predictedGrade = predictedGrade;
     }
 
     public Long getId() {
@@ -24,14 +28,6 @@ public class StudentCourseResponse {
 
     public void setId(Long id) {
         this.id = id;
-    }
-
-    public int getRowId() {
-        return rowId;
-    }
-
-    public void setRowId(int rowId) {
-        this.rowId = rowId;
     }
 
     public double getAttendance() {
@@ -80,37 +76,5 @@ public class StudentCourseResponse {
 
     public void setPredictedGrade(String predictedGrade) {
         this.predictedGrade = predictedGrade;
-    }
-
-    public String getDate() {
-        return date;
-    }
-
-    public void setDate(String date) {
-        this.date = date;
-    }
-
-    public String getCourseName() {
-        return courseName;
-    }
-
-    public void setCourseName(String courseName) {
-        this.courseName = courseName;
-    }
-
-    public String getTeacherName() {
-        return teacherName;
-    }
-
-    public void setTeacherName(String teacherName) {
-        this.teacherName = teacherName;
-    }
-
-    public String getStudentName() {
-        return studentName;
-    }
-
-    public void setStudentName(String studentName) {
-        this.studentName = studentName;
     }
 }

@@ -2,7 +2,7 @@ package eif.viko.lt.predictionappclient.Utils;
 
 public class EmailToNameConverter {
 
-    public static String getNameFromEmail(String email) {
+    public static String getFullNameFromEmail(String email) {
         if (email == null || email.isEmpty()) {
             throw new IllegalArgumentException("Invalid email provided.");
         }
@@ -53,6 +53,22 @@ public class EmailToNameConverter {
             throw new IllegalArgumentException("Input fullName must contain at least two words");
         }
         return parts[0];
+    }
+
+    public static String createEmail(String fullName) {
+        if (fullName == null || fullName.isBlank()) {
+            throw new IllegalArgumentException("Full name cannot be null or blank");
+        }
+
+        // Split the full name into parts
+        String[] nameParts = fullName.trim().toLowerCase().split("\\s+");
+
+        if (nameParts.length != 2) {
+            throw new IllegalArgumentException("Full name must contain exactly two parts: Surname and Name");
+        }
+
+        // Reverse the order and combine with a dot, then append the domain
+        return nameParts[1] + "." + nameParts[0] + "@viko.lt";
     }
 
 }

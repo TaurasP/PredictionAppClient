@@ -11,7 +11,7 @@ public class GradePredictionServiceImpl {
     private final GradePredictionService gradePredictionService;
 
     public GradePredictionServiceImpl() {
-        Retrofit client = GradePredictionApiClient.getClient();
+        Retrofit client = RetrofitClient.getClient();
         gradePredictionService = client.create(GradePredictionService.class);
     }
 
