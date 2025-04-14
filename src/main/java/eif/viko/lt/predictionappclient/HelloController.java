@@ -160,7 +160,6 @@ public class HelloController implements Initializable {
 
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
-
         clearSecureStorage();
         boolean isAuthenticated = SecureStorage.getToken() == null;
         authPanelBox.setVisible(isAuthenticated);
@@ -196,118 +195,9 @@ public class HelloController implements Initializable {
         coursesTabTableTeacherCol.setCellValueFactory(new PropertyValueFactory<CourseResponse, String>("teacher"));
     }
 
-    private void filterStudentsTable(String keyword) {
-        if (keyword == null || keyword.trim().isEmpty()) {
-            studentCoursesTable.setItems(allStudents);
-            return;
-        }
-
-        ObservableList<StudentCourseResponse> filteredStudents = FXCollections.observableArrayList();
-
-        for (StudentCourseResponse student : allStudents) {
-            if (student.getStudentName().toLowerCase().contains(keyword.toLowerCase()) ||
-                    student.getTeacherName().toLowerCase().contains(keyword.toLowerCase()) ||
-                    student.getCourseName().toLowerCase().contains(keyword.toLowerCase())) {
-                filteredStudents.add(student);
-            }
-        }
-
-        studentCoursesTable.setItems(filteredStudents);
-        studentCoursesTable.refresh();
-    }
-
-    @FXML
-    void updateStudent(ActionEvent event) {
-        StudentCourseResponse selectedStudent = studentCoursesTable.getSelectionModel().getSelectedItem();
-        if (selectedStudent != null) {
-            selectedStudent.setAttendance(Double.parseDouble(attendanceInput.getText()));
-            selectedStudent.setAssignments(Double.parseDouble(assignmentsInput.getText()));
-            selectedStudent.setMidterm(Double.parseDouble(midTermInput.getText()));
-            selectedStudent.setFinalExam(Double.parseDouble(finalExamInput.getText()));
-            selectedStudent.setGrade(gradeInput.getText());
-            selectedStudent.setPredictedGrade(predictedGradeInput.getText());
-        }
-
-        studentCoursesTable.setItems(allStudents); // Refresh the TableView with updated data
-        studentCoursesTable.refresh();
-        // todo REST updateStudent call
-    }
-
-    @FXML
-    void studentRowClicked(MouseEvent event) {
-        StudentCourseResponse clickedStudent = studentCoursesTable.getSelectionModel().getSelectedItem();
-        attendanceInput.setText(String.valueOf(clickedStudent.getAttendance()));
-        assignmentsInput.setText(String.valueOf(clickedStudent.getAssignments()));
-        midTermInput.setText(String.valueOf(clickedStudent.getMidterm()));
-        finalExamInput.setText(String.valueOf(clickedStudent.getFinalExam()));
-        gradeInput.setText(String.valueOf(clickedStudent.getGrade()));
-        predictedGradeInput.setText(String.valueOf(clickedStudent.getPredictedGrade()));
-    }
-
-    @FXML
-    void predictGrade(ActionEvent event) {
-        StudentRequest request = new StudentRequest(
-                Double.parseDouble(attendanceInput.getText()),
-                Double.parseDouble(assignmentsInput.getText()),
-                Double.parseDouble(midTermInput.getText()),
-                Double.parseDouble(finalExamInput.getText()));
-        gradePredictionService.predict(request, new GradePredictionCallback() {
-            @Override
-            public void onPredictionSuccess(String predictedGrade) {
-                predictedGradeInput.setText(predictedGrade);
-                // post request to save data to StudentCourse and PredictedGradeHistory
-            }
-
-            @Override
-            public void onPredictionFailure(String errorMessage) {
-                predictedGradeInput.setText("Prediction failed!");
-                System.err.println("Error: " + errorMessage);
-            }
-        });
-    }
-
-    @FXML
-    void getUsersByRole(ActionEvent event) {
-        userService.getUsersByRole(new ChaUserCallback() {
-            @Override
-            public void onChaUserSuccess(List<ChatUser> list) {
-                List<String> emailList = list.stream()
-                        .map(user -> getFullNameFromEmail(user.getEmail()))
-                        .toList();
-
-                coursesTabTeacherComboBox.setItems(FXCollections.observableArrayList(emailList));
-            }
-
-            @Override
-            public void onChaUserFailure(String errorMessage) {
-
-            }
-        });
-    }
 
 
-    @FXML
-    void register(ActionEvent event) {
-        String email = emailRegField.getText();
-        String password = passwordRegField.getText();
-        String role = roleComboBox.getValue() != null ? getRoleNameFromDisplayName(roleComboBox.getValue()) : Role.STUDENT.name();
-
-        if (email != null && password != null) {
-            authService.register(email, password, role, new RegisterCallback() {
-                @Override
-                public void onRegisterSuccess(String message) {
-
-                }
-
-                @Override
-                public void onRegisterFailure(String errorMessage) {
-
-                }
-            });
-            regLabel.setText("User " + email + " created successfully!");
-        }
-    }
-
+    // Login
     @FXML
     void login(ActionEvent event) {
         String user = username.getText();
@@ -354,31 +244,52 @@ public class HelloController implements Initializable {
         }
     }
 
-    private void handleKeyPress(KeyEvent event) {
-        if (event.getCode() == KeyCode.ENTER) {
-            // Trigger the askChatBot method
-            askChatBot(new ActionEvent());
-            // Clear the input field after sending the message
-            chatBotMessageInput.clear();
+
+    // Register
+    @FXML
+    void register(ActionEvent event) {
+        String email = emailRegField.getText();
+        String password = passwordRegField.getText();
+        String role = roleComboBox.getValue() != null ? getRoleNameFromDisplayName(roleComboBox.getValue()) : Role.STUDENT.name();
+
+        if (email != null && password != null) {
+            authService.register(email, password, role, new RegisterCallback() {
+                @Override
+                public void onRegisterSuccess(String message) {
+
+                }
+
+                @Override
+                public void onRegisterFailure(String errorMessage) {
+
+                }
+            });
+            regLabel.setText("User " + email + " created successfully!");
         }
     }
 
+    private String getRoleNameFromDisplayName(String displayName) {
+        for (Role role : Role.values()) {
+            if (role.getDisplayName().equalsIgnoreCase(displayName)) {
+                return role.name();
+            }
+        }
+        throw new IllegalArgumentException("Invalid display name: " + displayName);
+    }
+
+
+
+    // Chat
     @FXML
     void askChatBot(ActionEvent event) {
-
         var question = chatBotMessageInput.getText();
-
         if (!question.isEmpty()) {
-
             chatBotAnswerTextArea.appendText(
                     """
                     Jūsų klausimas
                     """);
             chatBotAnswerTextArea.appendText("\t"+question + "\n");
-
-
             chatBotService.sendMessage(question, new ChatBotCallback() {
-
                 @Override
                 public void onLoginSuccess(String message) {
                     System.out.println(message);
@@ -396,24 +307,36 @@ public class HelloController implements Initializable {
         }
     }
 
-    public String getRoleDisplayName(String roleName) {
-        for (Role role : Role.values()) {
-            if (role.name().equalsIgnoreCase(roleName)) {
-                return role.getDisplayName();
+    @FXML
+    void getUsersByRole(ActionEvent event) {
+        userService.getUsersByRole(new ChaUserCallback() {
+            @Override
+            public void onChaUserSuccess(List<ChatUser> list) {
+                List<String> emailList = list.stream()
+                        .map(user -> getFullNameFromEmail(user.getEmail()))
+                        .toList();
+
+                coursesTabTeacherComboBox.setItems(FXCollections.observableArrayList(emailList));
             }
-        }
-        throw new IllegalArgumentException("Invalid role: " + roleName);
+
+            @Override
+            public void onChaUserFailure(String errorMessage) {
+
+            }
+        });
     }
 
-    public String getRoleNameFromDisplayName(String displayName) {
-        for (Role role : Role.values()) {
-            if (role.getDisplayName().equalsIgnoreCase(displayName)) {
-                return role.name();
-            }
+    private void handleKeyPress(KeyEvent event) {
+        if (event.getCode() == KeyCode.ENTER) {
+            // Trigger the askChatBot method
+            askChatBot(new ActionEvent());
+            // Clear the input field after sending the message
+            chatBotMessageInput.clear();
         }
-        throw new IllegalArgumentException("Invalid display name: " + displayName);
     }
 
+
+    // Students
     @FXML
     void getStudentCourses(ActionEvent event) {
         studentCourseService.getStudentCourses(new StudentCourseCallback() {
@@ -436,6 +359,104 @@ public class HelloController implements Initializable {
                     alert.setContentText(errorMessage);
                     alert.showAndWait();
                 });
+            }
+        });
+    }
+
+    @FXML
+    void studentRowClicked(MouseEvent event) {
+        StudentCourseResponse clickedStudent = studentCoursesTable.getSelectionModel().getSelectedItem();
+        attendanceInput.setText(String.valueOf(clickedStudent.getAttendance()));
+        assignmentsInput.setText(String.valueOf(clickedStudent.getAssignments()));
+        midTermInput.setText(String.valueOf(clickedStudent.getMidterm()));
+        finalExamInput.setText(String.valueOf(clickedStudent.getFinalExam()));
+        gradeInput.setText(String.valueOf(clickedStudent.getGrade()));
+        predictedGradeInput.setText(String.valueOf(clickedStudent.getPredictedGrade()));
+    }
+
+    private void filterStudentsTable(String keyword) {
+        if (keyword == null || keyword.trim().isEmpty()) {
+            studentCoursesTable.setItems(allStudents);
+            return;
+        }
+
+        ObservableList<StudentCourseResponse> filteredStudents = FXCollections.observableArrayList();
+
+        for (StudentCourseResponse student : allStudents) {
+            if (student.getStudentName().toLowerCase().contains(keyword.toLowerCase()) ||
+                    student.getTeacherName().toLowerCase().contains(keyword.toLowerCase()) ||
+                    student.getCourseName().toLowerCase().contains(keyword.toLowerCase())) {
+                filteredStudents.add(student);
+            }
+        }
+
+        studentCoursesTable.setItems(filteredStudents);
+        studentCoursesTable.refresh();
+    }
+
+    @FXML
+    void predictGrade(ActionEvent event) {
+        StudentRequest request = new StudentRequest(
+                Double.parseDouble(attendanceInput.getText()),
+                Double.parseDouble(assignmentsInput.getText()),
+                Double.parseDouble(midTermInput.getText()),
+                Double.parseDouble(finalExamInput.getText()));
+        gradePredictionService.predict(request, new GradePredictionCallback() {
+            @Override
+            public void onPredictionSuccess(String predictedGrade) {
+                predictedGradeInput.setText(predictedGrade);
+                // post request to save data to StudentCourse and PredictedGradeHistory
+            }
+
+            @Override
+            public void onPredictionFailure(String errorMessage) {
+                predictedGradeInput.setText("Prediction failed!");
+                System.err.println("Error: " + errorMessage);
+            }
+        });
+    }
+
+    @FXML
+    void updateStudent(ActionEvent event) {
+        StudentCourseResponse selectedStudent = studentCoursesTable.getSelectionModel().getSelectedItem();
+        if (selectedStudent != null) {
+            selectedStudent.setAttendance(Double.parseDouble(attendanceInput.getText()));
+            selectedStudent.setAssignments(Double.parseDouble(assignmentsInput.getText()));
+            selectedStudent.setMidterm(Double.parseDouble(midTermInput.getText()));
+            selectedStudent.setFinalExam(Double.parseDouble(finalExamInput.getText()));
+            selectedStudent.setGrade(gradeInput.getText());
+            selectedStudent.setPredictedGrade(predictedGradeInput.getText());
+        }
+
+        studentCoursesTable.setItems(allStudents); // Refresh the TableView with updated data
+        studentCoursesTable.refresh();
+        // todo REST updateStudent call
+    }
+
+
+    // Courses
+    @FXML
+    void getCourses(ActionEvent event) {
+        courseService.getCourses(new CourseCallback() {
+            @Override
+            public void onCourseSuccess(String message) {
+
+            }
+
+            @Override
+            public void onAllCourseSuccess(List<CourseResponse> courses) {
+                Platform.runLater(() -> {
+                    ObservableList<CourseResponse> items = coursesTabCoursesTable.getItems();
+                    items.clear();
+                    items.addAll(courses);
+                    allCourses.clear();
+                    allCourses.setAll(courses);
+                });
+            }
+
+            @Override
+            public void onCourseFailure(String errorMessage) {
+
             }
         });
     }
@@ -465,32 +486,9 @@ public class HelloController implements Initializable {
         }
     }
 
-    @FXML
-    void getCourses(ActionEvent event) {
-        courseService.getCourses(new CourseCallback() {
-            @Override
-            public void onCourseSuccess(String message) {
 
-            }
 
-            @Override
-            public void onAllCourseSuccess(List<CourseResponse> courses) {
-                Platform.runLater(() -> {
-                    ObservableList<CourseResponse> items = coursesTabCoursesTable.getItems();
-                    items.clear();
-                    items.addAll(courses);
-                    allCourses.clear();
-                    allCourses.setAll(courses);
-                });
-            }
-
-            @Override
-            public void onCourseFailure(String errorMessage) {
-
-            }
-        });
-    }
-
+    // Profile
     @FXML
     void logout(ActionEvent event) {
         clearSecureStorage();
@@ -507,7 +505,7 @@ public class HelloController implements Initializable {
         redirectToTab(loginTab);
     }
 
-    public void clearSecureStorage() {
+    private void clearSecureStorage() {
         SecureStorage.clearToken();
         SecureStorage.clearEmail();
         SecureStorage.clearRole();
@@ -520,4 +518,12 @@ public class HelloController implements Initializable {
         }
     }
 
+    private String getRoleDisplayName(String roleName) {
+        for (Role role : Role.values()) {
+            if (role.name().equalsIgnoreCase(roleName)) {
+                return role.getDisplayName();
+            }
+        }
+        throw new IllegalArgumentException("Invalid role: " + roleName);
+    }
 }
