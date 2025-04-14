@@ -427,14 +427,13 @@ public class HelloController implements Initializable {
     @FXML
     void saveCourse(ActionEvent event) {
         String courseName = coursesTabCourseNameInput.getText();
-        String teacher = createEmail(coursesTabTeacherComboBox.getValue());
+        String teacher = coursesTabTeacherComboBox.getValue();
 
         if (courseName != null && !teacher.isEmpty()) {
-            System.out.println("Course name: " + courseName + ", Teacher: " + teacher + ".");
             courseService.saveCourse(courseName, teacher, new CourseCallback() {
                 @Override
                 public void onCourseSuccess(String message) {
-
+                    System.out.println(message);
                 }
 
                 @Override

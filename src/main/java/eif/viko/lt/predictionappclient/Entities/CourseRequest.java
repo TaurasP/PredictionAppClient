@@ -2,30 +2,40 @@ package eif.viko.lt.predictionappclient.Entities;
 
 public class CourseRequest {
 
-    private String name;
-    private String teacher;
+    private String courseName;
+    private String teacherName;
+    private String teacherSurname;
 
     public CourseRequest() {
     }
 
-    public CourseRequest(String name, String teacher) {
-        this.name = name;
-        this.teacher = teacher;
+    public CourseRequest(String courseName, String teacherName, String teacherSurname) {
+        this.courseName = courseName;
+        this.teacherName = teacherName;
+        this.teacherSurname = teacherSurname;
     }
 
-    public String getName() {
-        return name;
+    public String getCourseName() {
+        return courseName;
     }
 
-    public void setName(String name) {
-        this.name = name;
+    public void setCourseName(String courseName) {
+        this.courseName = courseName;
     }
 
-    public String getTeacher() {
-        return teacher;
+    public String getTeacherName() {
+        return teacherName;
     }
 
-    public void setTeacher(String teacher) {
-        this.teacher = teacher;
+    public void setTeacherName(String teacherName) {
+        this.teacherName = teacherName;
+    }
+
+    public String getTeacherSurname() {
+        return teacherSurname;
+    }
+
+    public void setTeacherSurname(String teacherSurname) {
+        this.teacherSurname = teacherSurname;
     }
 }
