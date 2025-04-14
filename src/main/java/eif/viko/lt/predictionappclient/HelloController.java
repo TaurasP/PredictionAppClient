@@ -28,22 +28,7 @@ import static eif.viko.lt.predictionappclient.Utils.EmailToNameConverter.*;
 
 public class HelloController implements Initializable {
 
-    @FXML
-    private Tab regTab;
-    @FXML
-    private VBox regPanelBox;
-    @FXML
-    private Label regLabel;
-    @FXML
-    private TextField emailRegField;
-    @FXML
-    private ComboBox<String> roleComboBox;
-    @FXML
-    private TextField passwordRegField;
-    @FXML
-    private Button regBtn;
-
-
+    // Login
     @FXML
     private Tab loginTab;
     @FXML
@@ -60,6 +45,24 @@ public class HelloController implements Initializable {
     private Button logoutBtn;
 
 
+    // Register
+    @FXML
+    private Tab regTab;
+    @FXML
+    private VBox regPanelBox;
+    @FXML
+    private Label regLabel;
+    @FXML
+    private TextField emailRegField;
+    @FXML
+    private ComboBox<String> roleComboBox;
+    @FXML
+    private TextField passwordRegField;
+    @FXML
+    private Button regBtn;
+
+
+    // Chat
     @FXML
     private Tab chatTab;
     @FXML
@@ -68,6 +71,7 @@ public class HelloController implements Initializable {
     private TextField chatBotMessageInput;
 
 
+    // Students
     @FXML
     private Tab studentsTab;
     @FXML
@@ -115,6 +119,7 @@ public class HelloController implements Initializable {
     private Button predictGradeBtn;
 
 
+    // Courses
     @FXML
     private Tab coursesTab;
     @FXML
@@ -123,6 +128,8 @@ public class HelloController implements Initializable {
     private ComboBox<String> coursesTabTeacherComboBox;
     @FXML
     private Button coursesTabSaveBtn;
+    @FXML
+    private TextField coursesTabSearchInput;
     @FXML
     private TableView<CourseResponse> coursesTabCoursesTable;
     @FXML
@@ -133,11 +140,12 @@ public class HelloController implements Initializable {
     private TableColumn<CourseResponse, String> coursesTabTableTeacherCol;
     private ObservableList<CourseResponse> allCourses = FXCollections.observableArrayList();
 
-
+    // Predicted grades
     @FXML
     private Tab perdictedGradesTab;
 
 
+    // Profile
     @FXML
     private Tab profileTab;
     @FXML
@@ -231,6 +239,9 @@ public class HelloController implements Initializable {
                     getCourses(null);
                     studentSearchInput.textProperty().addListener((observable, oldValue, newValue) -> {
                         filterStudentsTable(newValue);
+                    });
+                    coursesTabSearchInput.textProperty().addListener((observable, oldValue, newValue) -> {
+                        filterCoursesTable(newValue);
                     });
                     redirectToTab(profileTab);
                 }
@@ -459,6 +470,25 @@ public class HelloController implements Initializable {
 
             }
         });
+    }
+
+    private void filterCoursesTable(String keyword) {
+        if (keyword == null || keyword.trim().isEmpty()) {
+            coursesTabCoursesTable.setItems(allCourses);
+            return;
+        }
+
+        ObservableList<CourseResponse> filteredCourses = FXCollections.observableArrayList();
+
+        for (CourseResponse course : allCourses) {
+            if (course.getCourseName().toLowerCase().contains(keyword.toLowerCase()) ||
+                    course.getTeacher().toLowerCase().contains(keyword.toLowerCase())) {
+                filteredCourses.add(course);
+            }
+        }
+
+        coursesTabCoursesTable.setItems(filteredCourses);
+        coursesTabCoursesTable.refresh();
     }
 
     @FXML
