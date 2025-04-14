@@ -23,7 +23,6 @@ public class UserServiceImpl {
             @Override
             public void onResponse(Call<List<ChatUser>> call, Response<List<ChatUser>> response) {
                 if (response.isSuccessful() && response.body() != null) {
-                    System.out.println(response.body());
                     callback.onChaUserSuccess(response.body());
                 } else {
                     callback.onChaUserFailure("Failed to fetch users. Response code: " + response.code());

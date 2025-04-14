@@ -9,12 +9,6 @@ public class CourseResponse {
     public CourseResponse() {
     }
 
-    public CourseResponse(int rowId, String courseName, String teacher) {
-        this.rowId = rowId;
-        this.courseName = courseName;
-        this.teacher = teacher;
-    }
-
     public int getRowId() {
         return rowId;
     }

@@ -2,6 +2,8 @@ package eif.viko.lt.predictionappclient;
 
 import eif.viko.lt.predictionappclient.Entities.ChatUser;
 import eif.viko.lt.predictionappclient.Entities.CourseResponse;
+import eif.viko.lt.predictionappclient.Entities.PredictedGradeHistoryResponse;
+import eif.viko.lt.predictionappclient.Entities.StudentCourseRequest;
 import eif.viko.lt.predictionappclient.Entities.StudentCourseResponse;
 import eif.viko.lt.predictionappclient.Dto.StudentRequest;
 import eif.viko.lt.predictionappclient.Entities.Role;
@@ -140,9 +142,30 @@ public class HelloController implements Initializable {
     private TableColumn<CourseResponse, String> coursesTabTableTeacherCol;
     private ObservableList<CourseResponse> allCourses = FXCollections.observableArrayList();
 
+
     // Predicted grades
     @FXML
     private Tab perdictedGradesTab;
+    @FXML
+    private TableView<PredictedGradeHistoryResponse> predictedGradesTable;
+    @FXML
+    private TableColumn<PredictedGradeHistoryResponse, String> predictedGradesDateCol;
+    @FXML
+    private TableColumn<PredictedGradeHistoryResponse, String> predictedGradesStudentCol;
+    @FXML
+    private TableColumn<PredictedGradeHistoryResponse, String> predictedGradesCourseCol;
+    @FXML
+    private TableColumn<PredictedGradeHistoryResponse, String> predictedGradesPredictedGradeCol;
+    @FXML
+    private TableColumn<PredictedGradeHistoryResponse, String> predictedGradesTeacherCol;
+    @FXML
+    private TableColumn<PredictedGradeHistoryResponse, Double> predictedGradesAttendanceCol;
+    @FXML
+    private TableColumn<PredictedGradeHistoryResponse, Double> predictedGradesAssignmentsCol;
+    @FXML
+    private TableColumn<PredictedGradeHistoryResponse, Double> predictedGradesMidTermCol;
+    @FXML
+    private TableColumn<PredictedGradeHistoryResponse, Double> predictedGradesFinalExamCol;
 
 
     // Profile
@@ -164,6 +187,7 @@ public class HelloController implements Initializable {
     private final StudentCourseServiceImpl studentCourseService = new StudentCourseServiceImpl();
     private final UserServiceImpl userService = new UserServiceImpl();
     private final CourseServiceImpl courseService = new CourseServiceImpl();
+    private final PredictedGradeHistoryServiceImpl predictedGradeHistoryService = new PredictedGradeHistoryServiceImpl();
 
 
     @Override
@@ -201,6 +225,16 @@ public class HelloController implements Initializable {
         coursesTabTableRowIdCol.setCellValueFactory(new PropertyValueFactory<CourseResponse, Integer>("rowId"));
         coursesTabTableCourseCol.setCellValueFactory(new PropertyValueFactory<CourseResponse, String>("courseName"));
         coursesTabTableTeacherCol.setCellValueFactory(new PropertyValueFactory<CourseResponse, String>("teacher"));
+
+        predictedGradesDateCol.setCellValueFactory(new PropertyValueFactory<PredictedGradeHistoryResponse, String>("date"));
+        predictedGradesStudentCol.setCellValueFactory(new PropertyValueFactory<PredictedGradeHistoryResponse, String>("studentName"));
+        predictedGradesCourseCol.setCellValueFactory(new PropertyValueFactory<PredictedGradeHistoryResponse, String>("courseName"));
+        predictedGradesPredictedGradeCol.setCellValueFactory(new PropertyValueFactory<PredictedGradeHistoryResponse, String>("predictedGrade"));
+        predictedGradesTeacherCol.setCellValueFactory(new PropertyValueFactory<PredictedGradeHistoryResponse, String>("teacherName"));
+        predictedGradesAttendanceCol.setCellValueFactory(new PropertyValueFactory<PredictedGradeHistoryResponse, Double>("attendance"));
+        predictedGradesAssignmentsCol.setCellValueFactory(new PropertyValueFactory<PredictedGradeHistoryResponse, Double>("assignments"));
+        predictedGradesMidTermCol.setCellValueFactory(new PropertyValueFactory<PredictedGradeHistoryResponse, Double>("midterm"));
+        predictedGradesFinalExamCol.setCellValueFactory(new PropertyValueFactory<PredictedGradeHistoryResponse, Double>("finalExam"));
     }
 
 
@@ -237,6 +271,7 @@ public class HelloController implements Initializable {
                     getStudentCourses(null);
                     getUsersByRole(null);
                     getCourses(null);
+                    getPredictedGradesHistory(null);
                     studentSearchInput.textProperty().addListener((observable, oldValue, newValue) -> {
                         filterStudentsTable(newValue);
                     });
@@ -441,7 +476,33 @@ public class HelloController implements Initializable {
 
         studentCoursesTable.setItems(allStudents); // Refresh the TableView with updated data
         studentCoursesTable.refresh();
-        // todo REST updateStudent call
+        updateStudentCourse(null, selectedStudent);
+    }
+
+    @FXML
+    void updateStudentCourse(ActionEvent event, StudentCourseResponse selectedStudent) {
+        Long id = studentCoursesTable.getSelectionModel().getSelectedItem().getId();
+
+        studentCourseService.updateStudentCourse(new StudentCourseRequest(
+                id,
+                selectedStudent.getAttendance(),
+                selectedStudent.getAssignments(),
+                selectedStudent.getMidterm(),
+                selectedStudent.getFinalExam(),
+                selectedStudent.getGrade(),
+                selectedStudent.getPredictedGrade()
+        ), new StudentCourseUpdateCallback() {
+
+            @Override
+            public void onStudentCourseUpdateSuccess(StudentCourseResponse response) {
+                // todo update predicted grades history table
+            }
+
+            @Override
+            public void onStudentCourseUpdateFailure(String errorMessage) {
+
+            }
+        });
     }
 
 
@@ -516,6 +577,32 @@ public class HelloController implements Initializable {
         }
     }
 
+    
+    
+    // Predicted grades history
+    @FXML
+    void getPredictedGradesHistory(ActionEvent event) {
+        predictedGradeHistoryService.getPredictedGradeHistory(new PredictedGradeHistoryCallback() {
+            @Override
+            public void onSuccess(List<PredictedGradeHistoryResponse> list) {
+                Platform.runLater(() -> {
+                     predictedGradesTable.setItems(FXCollections.observableArrayList(list));
+                });
+            }
+
+            @Override
+            public void onFailure(String errorMessage) {
+                Platform.runLater(() -> {
+//                    Alert alert = new Alert(Alert.AlertType.ERROR);
+//                    alert.setTitle("Error");
+//                    alert.setHeaderText("Failed to Load Predicted Grades History");
+//                    alert.setContentText(errorMessage);
+//                    alert.showAndWait();
+                });
+            }
+        });
+    }
+    
 
 
     // Profile

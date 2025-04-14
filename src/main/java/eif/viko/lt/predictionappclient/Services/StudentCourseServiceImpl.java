@@ -1,5 +1,6 @@
 package eif.viko.lt.predictionappclient.Services;
 
+import eif.viko.lt.predictionappclient.Entities.StudentCourseRequest;
 import eif.viko.lt.predictionappclient.Entities.StudentCourseResponse;
 import retrofit2.Call;
 import retrofit2.Response;
@@ -22,7 +23,6 @@ public class StudentCourseServiceImpl {
             @Override
             public void onResponse(Call<List<StudentCourseResponse>> call, Response<List<StudentCourseResponse>> response) {
                 if (response.isSuccessful() && response.body() != null) {
-                    System.out.println(response.body());
                     callback.onStudentCourseSuccess(response.body());
                 } else {
                     callback.onStudentCourseFailure("Failed to fetch courses. Response code: " + response.code());
@@ -33,6 +33,21 @@ public class StudentCourseServiceImpl {
             public void onFailure(Call<List<StudentCourseResponse>> call, Throwable throwable) {
                 callback.onStudentCourseFailure("Error fetching courses: " + throwable.getMessage());
                 throwable.printStackTrace();
+            }
+        });
+    }
+
+    public void updateStudentCourse(StudentCourseRequest request, StudentCourseUpdateCallback callback) {
+        Call<StudentCourseResponse> call = studentCourseService.updateStudentCourse(request.getId(), request);
+        call.enqueue(new retrofit2.Callback<StudentCourseResponse>() {
+            @Override
+            public void onResponse(Call<StudentCourseResponse> call, Response<StudentCourseResponse> response) {
+                callback.onStudentCourseUpdateSuccess(response.body());
+            }
+
+            @Override
+            public void onFailure(Call<StudentCourseResponse> call, Throwable throwable) {
+                callback.onStudentCourseUpdateFailure("Failed to update courses. Response code: " + throwable.getMessage());
             }
         });
     }

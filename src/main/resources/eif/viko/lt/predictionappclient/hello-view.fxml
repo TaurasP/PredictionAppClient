@@ -187,17 +187,17 @@
      <content>
        <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
             <children>
-               <TableView layoutX="14.0" layoutY="14.0" prefHeight="482.0" prefWidth="1417.0">
+               <TableView fx:id="predictedGradesTable" layoutX="14.0" layoutY="14.0" prefHeight="482.0" prefWidth="1417.0">
                  <columns>
-                     <TableColumn prefWidth="163.0" text="Data" />
-                   <TableColumn prefWidth="259.0" text="Studentas" />
-                     <TableColumn prefWidth="282.0" text="Dalykas" />
-                     <TableColumn prefWidth="76.0" text="Prognozė" />
-                   <TableColumn prefWidth="274.0" text="Mokytojas" />
-                     <TableColumn prefWidth="90.0" text="Lankomumas" />
-                     <TableColumn prefWidth="60.0" text="Darbai" />
-                     <TableColumn prefWidth="133.0" text="Tarpiniai atsiskaitymai" />
-                     <TableColumn prefWidth="79.0" text="Egzaminas" />
+                     <TableColumn fx:id="predictedGradesDateCol" prefWidth="163.0" text="Data" />
+                   <TableColumn fx:id="predictedGradesStudentCol" prefWidth="259.0" text="Studentas" />
+                     <TableColumn fx:id="predictedGradesCourseCol" prefWidth="282.0" text="Dalykas" />
+                     <TableColumn fx:id="predictedGradesPredictedGradeCol" prefWidth="76.0" text="Prognozė" />
+                   <TableColumn fx:id="predictedGradesTeacherCol" prefWidth="274.0" text="Mokytojas" />
+                     <TableColumn fx:id="predictedGradesAttendanceCol" prefWidth="90.0" text="Lankomumas" />
+                     <TableColumn fx:id="predictedGradesAssignmentsCol" prefWidth="60.0" text="Darbai" />
+                     <TableColumn fx:id="predictedGradesMidTermCol" prefWidth="133.0" text="Tarpiniai atsiskaitymai" />
+                     <TableColumn fx:id="predictedGradesFinalExamCol" prefWidth="79.0" text="Egzaminas" />
                  </columns>
                </TableView>
             </children></AnchorPane>
