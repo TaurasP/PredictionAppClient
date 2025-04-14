@@ -64,13 +64,23 @@ public class HelloController implements Initializable {
     private Button regBtn;
 
 
-    // Chat
+    // New students
     @FXML
-    private Tab chatTab;
+    private Tab newStudentsTab;
     @FXML
-    private TextArea chatBotAnswerTextArea;
+    private ComboBox<String> newStudentsTabCoursesComboBox;
     @FXML
-    private TextField chatBotMessageInput;
+    private TextField newStudentsTabSearchInput;
+    @FXML
+    private TextField newStudentsTabTeacherInput;
+    @FXML
+    private Button newStudentsTabSaveBtn;
+//    @FXML
+//    private TableView<StudentCourseResponse> newStudentsTable;
+//    @FXML
+//    private TableColumn<StudentCourseResponse, Integer> newStudentsTabRowIdCol;
+//    @FXML
+//    private TableColumn<StudentCourseResponse, String> newStudentsTabStudentCol;
 
 
     // Students
@@ -166,6 +176,15 @@ public class HelloController implements Initializable {
     private TableColumn<PredictedGradeHistoryResponse, Double> predictedGradesMidTermCol;
     @FXML
     private TableColumn<PredictedGradeHistoryResponse, Double> predictedGradesFinalExamCol;
+
+
+    // Chat
+    @FXML
+    private Tab chatTab;
+    @FXML
+    private TextArea chatBotAnswerTextArea;
+    @FXML
+    private TextField chatBotMessageInput;
 
 
     // Profile
@@ -323,63 +342,6 @@ public class HelloController implements Initializable {
         throw new IllegalArgumentException("Invalid display name: " + displayName);
     }
 
-
-
-    // Chat
-    @FXML
-    void askChatBot(ActionEvent event) {
-        var question = chatBotMessageInput.getText();
-        if (!question.isEmpty()) {
-            chatBotAnswerTextArea.appendText(
-                    """
-                    Jūsų klausimas
-                    """);
-            chatBotAnswerTextArea.appendText("\t"+question + "\n");
-            chatBotService.sendMessage(question, new ChatBotCallback() {
-                @Override
-                public void onLoginSuccess(String message) {
-                    System.out.println(message);
-                    chatBotAnswerTextArea.appendText("""
-                            Pokalbių roboto atsakymas
-                            """);
-                    chatBotAnswerTextArea.appendText("\t"+message+"\n");
-                }
-
-                @Override
-                public void onLoginFailure(String errorMessage) {
-                    System.out.println(errorMessage);
-                }
-            });
-        }
-    }
-
-    @FXML
-    void getUsersByRole(ActionEvent event) {
-        userService.getUsersByRole(new ChaUserCallback() {
-            @Override
-            public void onChaUserSuccess(List<ChatUser> list) {
-                List<String> emailList = list.stream()
-                        .map(user -> getFullNameFromEmail(user.getEmail()))
-                        .toList();
-
-                coursesTabTeacherComboBox.setItems(FXCollections.observableArrayList(emailList));
-            }
-
-            @Override
-            public void onChaUserFailure(String errorMessage) {
-
-            }
-        });
-    }
-
-    private void handleKeyPress(KeyEvent event) {
-        if (event.getCode() == KeyCode.ENTER) {
-            // Trigger the askChatBot method
-            askChatBot(new ActionEvent());
-            // Clear the input field after sending the message
-            chatBotMessageInput.clear();
-        }
-    }
 
 
     // Students
@@ -602,7 +564,65 @@ public class HelloController implements Initializable {
             }
         });
     }
-    
+
+
+
+    // Chat
+    @FXML
+    void askChatBot(ActionEvent event) {
+        var question = chatBotMessageInput.getText();
+        if (!question.isEmpty()) {
+            chatBotAnswerTextArea.appendText(
+                    """
+                    Jūsų klausimas
+                    """);
+            chatBotAnswerTextArea.appendText("\t"+question + "\n");
+            chatBotService.sendMessage(question, new ChatBotCallback() {
+                @Override
+                public void onLoginSuccess(String message) {
+                    System.out.println(message);
+                    chatBotAnswerTextArea.appendText("""
+                            Pokalbių roboto atsakymas
+                            """);
+                    chatBotAnswerTextArea.appendText("\t"+message+"\n");
+                }
+
+                @Override
+                public void onLoginFailure(String errorMessage) {
+                    System.out.println(errorMessage);
+                }
+            });
+        }
+    }
+
+    @FXML
+    void getUsersByRole(ActionEvent event) {
+        userService.getUsersByRole(new ChaUserCallback() {
+            @Override
+            public void onChaUserSuccess(List<ChatUser> list) {
+                List<String> emailList = list.stream()
+                        .map(user -> getFullNameFromEmail(user.getEmail()))
+                        .toList();
+
+                coursesTabTeacherComboBox.setItems(FXCollections.observableArrayList(emailList));
+            }
+
+            @Override
+            public void onChaUserFailure(String errorMessage) {
+
+            }
+        });
+    }
+
+    private void handleKeyPress(KeyEvent event) {
+        if (event.getCode() == KeyCode.ENTER) {
+            // Trigger the askChatBot method
+            askChatBot(new ActionEvent());
+            // Clear the input field after sending the message
+            chatBotMessageInput.clear();
+        }
+    }
+
 
 
     // Profile

@@ -75,21 +75,46 @@
          </AnchorPane>
      </content>
    </Tab>
-    <Tab fx:id="chatTab" text="Pokalbių robotas">
-        <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
-         <children>
-            <TextField fx:id="chatBotMessageInput" layoutX="45.0" layoutY="289.0" prefHeight="20.0" prefWidth="422.0" />
-            <Button layoutX="480.0" layoutY="289.0" mnemonicParsing="false" onAction="#askChatBot" text="Send" />
-            <TextArea fx:id="chatBotAnswerTextArea" layoutX="44.0" layoutY="90.0" prefHeight="187.0" prefWidth="423.0" />
-         </children></AnchorPane>
-    </Tab>
+   <Tab fx:id="newStudentsTab" text="Nauji studentai">
+     <content>
+       <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
+            <children>
+               <TableView fx:id="newStudentsTable" layoutX="178.0" layoutY="51.0" prefHeight="449.0" prefWidth="331.0">
+                 <columns>
+                   <TableColumn fx:id="newStudentsTabRowIdCol" prefWidth="52.0" text="ID" />
+                   <TableColumn fx:id="newStudentsTabStudentCol" prefWidth="278.0" text="Studentas" />
+                 </columns>
+               </TableView>
+               <Label layoutX="178.0" layoutY="16.0" text="Paieška" />
+               <TextField fx:id="newStudentsTabSearchInput" layoutX="229.0" layoutY="11.0" prefHeight="26.0" prefWidth="280.0" />
+               <VBox layoutX="14.0" layoutY="35.0" prefHeight="200.0" prefWidth="150.0">
+                  <children>
+                     <Label text="Dalykas" />
+                     <ComboBox fx:id="newStudentsTabCoursesComboBox" prefWidth="150.0" />
+                     <Label text="Mokytojas">
+                        <VBox.margin>
+                           <Insets top="10.0" />
+                        </VBox.margin>
+                     </Label>
+                     <TextField fx:id="newStudentsTabTeacherInput" />
+                     <Button fx:id="newStudentsTabSaveBtn" mnemonicParsing="false" prefHeight="25.0" prefWidth="150.0" text="Priskirti">
+                        <VBox.margin>
+                           <Insets top="10.0" />
+                        </VBox.margin>
+                     </Button>
+                  </children>
+               </VBox>
+            </children>
+         </AnchorPane>
+     </content>
+   </Tab>
    <Tab fx:id="studentsTab" text="Studentai">
      <content>
        <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
            <TableView fx:id="studentCoursesTable" layoutX="178.0" layoutY="51.0" onMouseClicked="#studentRowClicked" prefHeight="445.0" prefWidth="1249.0">
                <columns>
-                  <TableColumn fx:id="studentRowIdCol" prefWidth="47.0" text="ID" />
-                  <TableColumn fx:id="studentNameCol" prefWidth="187.0" text="Studentas" />
+                  <TableColumn fx:id="studentRowIdCol" prefWidth="50.0" text="ID" />
+                  <TableColumn fx:id="studentNameCol" prefWidth="184.0" text="Studentas" />
                   <TableColumn fx:id="teacherNameCol" prefWidth="188.0" text="Mokytojas" />
                   <TableColumn fx:id="courseNameCol" prefWidth="206.0" text="Dalykas" />
                    <TableColumn fx:id="attendanceCol" prefWidth="93.0" text="Lankomumas" />
@@ -173,8 +198,8 @@
                </VBox>
                <TableView fx:id="coursesTabCoursesTable" layoutX="178.0" layoutY="51.0" prefHeight="447.0" prefWidth="502.0">
                  <columns>
-                   <TableColumn fx:id="coursesTabTableRowIdCol" prefWidth="54.0" text="ID" />
-                   <TableColumn fx:id="coursesTabTableCourseCol" prefWidth="220.0" text="Dalykas" />
+                   <TableColumn fx:id="coursesTabTableRowIdCol" prefWidth="51.0" text="ID" />
+                   <TableColumn fx:id="coursesTabTableCourseCol" prefWidth="223.0" text="Dalykas" />
                      <TableColumn fx:id="coursesTabTableTeacherCol" prefWidth="229.0" text="Mokytojas" />
                  </columns>
                </TableView>
@@ -203,6 +228,14 @@
             </children></AnchorPane>
      </content>
    </Tab>
+    <Tab fx:id="chatTab" text="Pokalbių robotas">
+        <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
+         <children>
+            <TextField fx:id="chatBotMessageInput" layoutX="45.0" layoutY="289.0" prefHeight="20.0" prefWidth="422.0" />
+            <Button layoutX="480.0" layoutY="289.0" mnemonicParsing="false" onAction="#askChatBot" text="Send" />
+            <TextArea fx:id="chatBotAnswerTextArea" layoutX="44.0" layoutY="90.0" prefHeight="187.0" prefWidth="423.0" />
+         </children></AnchorPane>
+    </Tab>
     <Tab fx:id="profileTab" text="Profilis">
         <content>
             <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
