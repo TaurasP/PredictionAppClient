@@ -38,7 +38,6 @@
                   </Button>
                </children>
             </VBox>
-            <Button fx:id="logoutBtn" layoutX="15.0" layoutY="214.0" mnemonicParsing="false" onAction="#logout" prefHeight="25.0" prefWidth="200.0" text="Atsijungti" />
          </children></AnchorPane>
     </Tab>
    <Tab fx:id="regTab" text="Registracijos langas">
@@ -91,22 +90,6 @@
             <Button fx:id="predictedGradeBtn" layoutX="14.0" layoutY="14.0" mnemonicParsing="false" onAction="#predict" text="Nuspėti pažymį" />
          </children></AnchorPane>
     </Tab>
-   <Tab fx:id="profileTab" text="Profilis">
-     <content>
-       <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
-            <children>
-               <Text fx:id="profileEmailText" layoutX="80.0" layoutY="27.0" strokeType="OUTSIDE" strokeWidth="0.0" text="El. paštas" />
-               <Label layoutX="14.0" layoutY="14.0" text="El. paštas:" />
-               <Label layoutX="14.0" layoutY="30.0" text="Rolė:">
-                  <padding>
-                     <Insets top="10.0" />
-                  </padding>
-               </Label>
-               <Text fx:id="profileRoleText" layoutX="81.0" layoutY="53.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Rolė" />
-            </children>
-         </AnchorPane>
-     </content>
-   </Tab>
    <Tab fx:id="studentsTab" text="Studentai">
      <content>
        <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
@@ -174,4 +157,57 @@
        </AnchorPane>
      </content>
    </Tab>
+    <Tab fx:id="profileTab" text="Profilis">
+        <content>
+            <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
+                <children>
+                    <VBox layoutX="14.0" layoutY="14.0" prefHeight="200.0" prefWidth="67.0">
+                        <children>
+                            <Label text="Vardas:">
+                                <padding>
+                                    <Insets bottom="10.0" />
+                                </padding>
+                            </Label>
+                            <Label text="Pavardė:">
+                                <padding>
+                                    <Insets bottom="10.0" />
+                                </padding>
+                            </Label>
+                            <Label text="El. paštas:">
+                                <padding>
+                                    <Insets bottom="10.0" />
+                                </padding>
+                            </Label>
+                            <Label text="Rolė:" />
+                        </children>
+                    </VBox>
+                    <VBox layoutX="81.0" layoutY="14.0" prefHeight="200.0" prefWidth="100.0">
+                        <children>
+                            <Text fx:id="profileNameText" strokeType="OUTSIDE" strokeWidth="0.0" text="Vardas">
+                                <VBox.margin>
+                                    <Insets bottom="11.0" />
+                                </VBox.margin>
+                            </Text>
+                            <Text fx:id="profileSurnameText" strokeType="OUTSIDE" strokeWidth="0.0" text="Pavardė">
+                                <VBox.margin>
+                                    <Insets bottom="11.0" />
+                                </VBox.margin>
+                            </Text>
+                            <Text fx:id="profileEmailText" strokeType="OUTSIDE" strokeWidth="0.0" text="El. paštas">
+                                <VBox.margin>
+                                    <Insets bottom="11.0" />
+                                </VBox.margin>
+                            </Text>
+                            <Text fx:id="profileRoleText" strokeType="OUTSIDE" strokeWidth="0.0" text="Rolė">
+                                <VBox.margin>
+                                    <Insets />
+                                </VBox.margin>
+                            </Text>
+                        </children>
+                    </VBox>
+                    <Button fx:id="logoutBtn" layoutX="15.0" layoutY="214.0" mnemonicParsing="false" onAction="#logout" prefHeight="25.0" prefWidth="200.0" text="Atsijungti" />
+                </children>
+            </AnchorPane>
+        </content>
+    </Tab>
 </TabPane>

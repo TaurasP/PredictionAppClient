@@ -22,6 +22,8 @@ import java.net.URL;
 import java.util.List;
 import java.util.ResourceBundle;
 
+import static eif.viko.lt.predictionappclient.Utils.EmailToNameConverter.*;
+
 public class HelloController implements Initializable {
 
     @FXML
@@ -74,6 +76,10 @@ public class HelloController implements Initializable {
 
     @FXML
     private Tab profileTab;
+    @FXML
+    private Text profileNameText;
+    @FXML
+    private Text profileSurnameText;
     @FXML
     private Text profileEmailText;
     @FXML
@@ -256,17 +262,21 @@ public class HelloController implements Initializable {
                     mainTabLabel.setText("Sveiki prisijungę");
                     logoutBtn.setVisible(true);
                     regTab.setDisable(!isAdmin);
+                    loginTab.setDisable(true);
                     roleComboBox.setVisible(isAdmin);
                     chatTab.setDisable(false);
                     predictionTab.setDisable(false);
                     studentsTab.setDisable(false);
                     profileTab.setDisable(false);
+                    profileNameText.setText(extractName(getNameFromEmail(SecureStorage.getEmail())));
+                    profileSurnameText.setText(extractSurname(getNameFromEmail(SecureStorage.getEmail())));
                     profileEmailText.setText(SecureStorage.getEmail());
                     profileRoleText.setText(getRoleDisplayName(SecureStorage.getRole()));
                     findAll(null);
                     studentSearchInput.textProperty().addListener((observable, oldValue, newValue) -> {
                         filterStudentsTable(newValue);
                     });
+                    redirectToTab(profileTab);
                 }
 
                 @Override
@@ -391,16 +401,25 @@ public class HelloController implements Initializable {
         mainTabLabel.setText("");
         logoutBtn.setVisible(false);
         regTab.setDisable(false);
+        loginTab.setDisable(false);
         chatTab.setDisable(true);
         predictionTab.setDisable(true);
         profileTab.setDisable(true);
         studentsTab.setDisable(true);
+        redirectToTab(loginTab);
     }
 
     public void clearSecureStorage() {
         SecureStorage.clearToken();
         SecureStorage.clearEmail();
         SecureStorage.clearRole();
+    }
+
+    private void redirectToTab(Tab tab) {
+        TabPane tabPane = tab.getTabPane();
+        if (tabPane != null) {
+            tabPane.getSelectionModel().select(tab);
+        }
     }
 
 }
