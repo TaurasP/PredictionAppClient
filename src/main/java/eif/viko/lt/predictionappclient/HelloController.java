@@ -1,6 +1,7 @@
 package eif.viko.lt.predictionappclient;
 
 import eif.viko.lt.predictionappclient.Entities.ChatUser;
+import eif.viko.lt.predictionappclient.Entities.CourseResponse;
 import eif.viko.lt.predictionappclient.Entities.StudentCourseResponse;
 import eif.viko.lt.predictionappclient.Dto.StudentRequest;
 import eif.viko.lt.predictionappclient.Entities.Role;
@@ -122,6 +123,15 @@ public class HelloController implements Initializable {
     private ComboBox<String> coursesTabTeacherComboBox;
     @FXML
     private Button coursesTabSaveBtn;
+    @FXML
+    private TableView<CourseResponse> coursesTabCoursesTable;
+    @FXML
+    private TableColumn<CourseResponse, Integer> coursesTabTableRowIdCol;
+    @FXML
+    private TableColumn<CourseResponse, String> coursesTabTableCourseCol;
+    @FXML
+    private TableColumn<CourseResponse, String> coursesTabTableTeacherCol;
+    private ObservableList<CourseResponse> allCourses = FXCollections.observableArrayList();
 
 
     @FXML
@@ -180,6 +190,10 @@ public class HelloController implements Initializable {
         gradeCol.setCellValueFactory(new PropertyValueFactory<StudentCourseResponse, String>("grade"));
         predictedGradeCol.setCellValueFactory(new PropertyValueFactory<StudentCourseResponse, String>("predictedGrade"));
         dateCol.setCellValueFactory(new PropertyValueFactory<StudentCourseResponse, String>("date"));
+
+        coursesTabTableRowIdCol.setCellValueFactory(new PropertyValueFactory<CourseResponse, Integer>("rowId"));
+        coursesTabTableCourseCol.setCellValueFactory(new PropertyValueFactory<CourseResponse, String>("courseName"));
+        coursesTabTableTeacherCol.setCellValueFactory(new PropertyValueFactory<CourseResponse, String>("teacher"));
     }
 
     private void filterStudentsTable(String keyword) {
@@ -241,6 +255,7 @@ public class HelloController implements Initializable {
             @Override
             public void onPredictionSuccess(String predictedGrade) {
                 predictedGradeInput.setText(predictedGrade);
+                // post request to save data to StudentCourse and PredictedGradeHistory
             }
 
             @Override
@@ -321,8 +336,9 @@ public class HelloController implements Initializable {
                     profileSurnameText.setText(extractSurname(getFullNameFromEmail(SecureStorage.getEmail())));
                     profileEmailText.setText(SecureStorage.getEmail());
                     profileRoleText.setText(getRoleDisplayName(SecureStorage.getRole()));
-                    findAll(null);
+                    getStudentCourses(null);
                     getUsersByRole(null);
+                    getCourses(null);
                     studentSearchInput.textProperty().addListener((observable, oldValue, newValue) -> {
                         filterStudentsTable(newValue);
                     });
@@ -399,7 +415,7 @@ public class HelloController implements Initializable {
     }
 
     @FXML
-    void findAll(ActionEvent event) {
+    void getStudentCourses(ActionEvent event) {
         studentCourseService.getStudentCourses(new StudentCourseCallback() {
             @Override
             public void onStudentCourseSuccess(List<StudentCourseResponse> studentCourses) {
@@ -437,11 +453,42 @@ public class HelloController implements Initializable {
                 }
 
                 @Override
+                public void onAllCourseSuccess(List<CourseResponse> courses) {
+
+                }
+
+                @Override
                 public void onCourseFailure(String errorMessage) {
 
                 }
             });
         }
+    }
+
+    @FXML
+    void getCourses(ActionEvent event) {
+        courseService.getCourses(new CourseCallback() {
+            @Override
+            public void onCourseSuccess(String message) {
+
+            }
+
+            @Override
+            public void onAllCourseSuccess(List<CourseResponse> courses) {
+                Platform.runLater(() -> {
+                    ObservableList<CourseResponse> items = coursesTabCoursesTable.getItems();
+                    items.clear();
+                    items.addAll(courses);
+                    allCourses.clear();
+                    allCourses.setAll(courses);
+                });
+            }
+
+            @Override
+            public void onCourseFailure(String errorMessage) {
+
+            }
+        });
     }
 
     @FXML
