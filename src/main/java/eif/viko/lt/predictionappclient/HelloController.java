@@ -40,7 +40,7 @@ public class HelloController implements Initializable {
     @FXML
     private TextField username;
     @FXML
-    private TextField password;
+    private PasswordField password;
     @FXML
     private Button loginBtn;
     @FXML
@@ -59,7 +59,7 @@ public class HelloController implements Initializable {
     @FXML
     private ComboBox<String> roleComboBox;
     @FXML
-    private TextField passwordRegField;
+    private PasswordField passwordRegField;
     @FXML
     private Button regBtn;
 
@@ -222,6 +222,7 @@ public class HelloController implements Initializable {
         regPanelBox.setVisible(isAuthenticated);
         coursesTab.setDisable(isAuthenticated);
         perdictedGradesTab.setDisable(isAuthenticated);
+        studentsAssignmentTab.setDisable(isAuthenticated);
         roleComboBox.getItems().addAll(Role.ADMIN.getDisplayName(), Role.TEACHER.getDisplayName(), Role.STUDENT.getDisplayName());
         roleComboBox.setVisible(false);
         mainTabLabel.setText(SecureStorage.getToken());
@@ -284,6 +285,7 @@ public class HelloController implements Initializable {
                     roleComboBox.setVisible(isAdmin);
                     chatTab.setDisable(false);
                     studentsTab.setDisable(isStudent);
+                    studentsAssignmentTab.setDisable(isStudent);
                     profileTab.setDisable(false);
                     coursesTab.setDisable(!isAdmin);
                     perdictedGradesTab.setDisable(false);
@@ -690,6 +692,7 @@ public class HelloController implements Initializable {
         chatTab.setDisable(true);
         profileTab.setDisable(true);
         studentsTab.setDisable(true);
+        studentsAssignmentTab.setDisable(true);
         coursesTab.setDisable(true);
         perdictedGradesTab.setDisable(true);
         redirectToTab(loginTab);

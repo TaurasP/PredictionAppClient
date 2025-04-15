@@ -14,6 +14,7 @@
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Text?>
 
+<?import javafx.scene.control.PasswordField?>
 <TabPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="540.0" prefWidth="1440.0" tabClosingPolicy="UNAVAILABLE" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="eif.viko.lt.predictionappclient.HelloController">
     <Tab fx:id="loginTab" text="Prisijungimo langas">
         <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
@@ -30,7 +31,8 @@
                      <VBox.margin>
                         <Insets top="10.0" />
                      </VBox.margin></Text>
-                  <TextField fx:id="password" maxWidth="-Infinity" prefHeight="25.0" prefWidth="200.0" promptText="************" />
+                   <PasswordField fx:id="password" maxWidth="-Infinity" prefHeight="25.0" prefWidth="200.0"
+                                  promptText="************"/>
                   <Button fx:id="loginBtn" mnemonicParsing="false" onAction="#login" prefHeight="25.0" prefWidth="200.0" text="Prisijungti">
                      <VBox.margin>
                         <Insets top="10.0" />
@@ -58,7 +60,8 @@
                            <Insets top="10.0" />
                         </VBox.margin>
                      </Text>
-                     <TextField fx:id="passwordRegField" maxWidth="-Infinity" prefHeight="25.0" prefWidth="200.0" promptText="************" />
+                      <PasswordField fx:id="passwordRegField" maxWidth="-Infinity" prefHeight="25.0" prefWidth="200.0"
+                                     promptText="************"/>
                      <ComboBox fx:id="roleComboBox" prefHeight="25.0" prefWidth="200.0">
                         <VBox.margin>
                            <Insets top="10.0" />
