@@ -308,6 +308,7 @@ public class HelloController implements Initializable {
                         filterStudentsAssignmentTable(newValue);
                     });
                     redirectToTab(profileTab);
+//                    studentsAssignmentTabCoursesComboBox.setItems(FXCollections.observableArrayList(allCourses.stream().map(CourseResponse::getCourseName).toList()));
                 }
 
                 @Override
@@ -375,7 +376,29 @@ public class HelloController implements Initializable {
     @FXML
     void studentAssignmentRowClicked(MouseEvent event) {
         ChatUserResponse clickedStudent = studentsAssignmentTabTable.getSelectionModel().getSelectedItem();
-//        assignmentsInput.setText(String.valueOf(clickedStudent.getAssignments()));
+        List<String> courses = allCourses.stream().map(CourseResponse::getCourseName).toList();
+        List<String> coursesStudentIsIn = allStudents.stream()
+                .filter(s -> s.getStudentName().equals(clickedStudent.getFullName()))
+                .map(StudentCourseResponse::getCourseName)
+                .toList();
+        List<String> filteredCourses = courses.stream().filter(c -> !coursesStudentIsIn.contains(c)).toList();
+        studentsAssignmentTabCoursesComboBox.setItems(FXCollections.observableArrayList(filteredCourses));
+        studentsAssignmentTabCoursesComboBox.valueProperty().addListener((observable, oldValue, newValue) -> {
+            if (newValue != null) {
+                String teacher = allCourses.stream()
+                        .filter(c -> c.getCourseName().equals(newValue))
+                        .findFirst()
+                        .map(CourseResponse::getTeacher)
+                        .orElse("");
+                studentsAssignmentTabTeacherInput.setText(teacher);
+            }
+        });
+        String teacher = allCourses.stream()
+                .filter(c -> c.getCourseName().equals(studentsAssignmentTabCoursesComboBox.getValue()))
+                .findFirst()
+                .map(CourseResponse::getTeacher)
+                .orElse("");
+        studentsAssignmentTabTeacherInput.setText(teacher);
     }
 
     private void filterStudentsAssignmentTable(String keyword) {
@@ -578,7 +601,7 @@ public class HelloController implements Initializable {
             courseService.saveCourse(courseName, teacher, new CourseCallback() {
                 @Override
                 public void onCourseSuccess(String message) {
-                    System.out.println(message);
+                    // todo update table after new course is created
                 }
 
                 @Override
@@ -594,8 +617,7 @@ public class HelloController implements Initializable {
         }
     }
 
-    
-    
+
     // Predicted grades history
     @FXML
     void getPredictedGradesHistory(ActionEvent event) {
