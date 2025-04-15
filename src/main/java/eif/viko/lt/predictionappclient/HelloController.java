@@ -1,6 +1,6 @@
 package eif.viko.lt.predictionappclient;
 
-import eif.viko.lt.predictionappclient.Entities.ChatUser;
+import eif.viko.lt.predictionappclient.Entities.ChatUserResponse;
 import eif.viko.lt.predictionappclient.Entities.CourseResponse;
 import eif.viko.lt.predictionappclient.Entities.PredictedGradeHistoryResponse;
 import eif.viko.lt.predictionappclient.Entities.StudentCourseRequest;
@@ -64,23 +64,24 @@ public class HelloController implements Initializable {
     private Button regBtn;
 
 
-    // New students
+    // Students assignment
     @FXML
-    private Tab newStudentsTab;
+    private Tab studentsAssignmentTab;
     @FXML
-    private ComboBox<String> newStudentsTabCoursesComboBox;
+    private ComboBox<String> studentsAssignmentTabCoursesComboBox;
     @FXML
-    private TextField newStudentsTabSearchInput;
+    private TextField studentsAssignmentTabSearchInput;
     @FXML
-    private TextField newStudentsTabTeacherInput;
+    private TextField studentsAssignmentTabTeacherInput;
     @FXML
-    private Button newStudentsTabSaveBtn;
-//    @FXML
-//    private TableView<StudentCourseResponse> newStudentsTable;
-//    @FXML
-//    private TableColumn<StudentCourseResponse, Integer> newStudentsTabRowIdCol;
-//    @FXML
-//    private TableColumn<StudentCourseResponse, String> newStudentsTabStudentCol;
+    private Button studentsAssignmentTabSaveBtn;
+    @FXML
+    private TableView<ChatUserResponse> studentsAssignmentTabTable;
+    @FXML
+    private TableColumn<ChatUserResponse, Integer> studentsAssignmentTabTableRowIdCol;
+    @FXML
+    private TableColumn<ChatUserResponse, String> studentsAssignmentTabTableStudentCol;
+    private ObservableList<ChatUserResponse> allStudentsAssignments = FXCollections.observableArrayList();
 
 
     // Students
@@ -254,6 +255,9 @@ public class HelloController implements Initializable {
         predictedGradesAssignmentsCol.setCellValueFactory(new PropertyValueFactory<PredictedGradeHistoryResponse, Double>("assignments"));
         predictedGradesMidTermCol.setCellValueFactory(new PropertyValueFactory<PredictedGradeHistoryResponse, Double>("midterm"));
         predictedGradesFinalExamCol.setCellValueFactory(new PropertyValueFactory<PredictedGradeHistoryResponse, Double>("finalExam"));
+
+        studentsAssignmentTabTableRowIdCol.setCellValueFactory(new PropertyValueFactory<ChatUserResponse, Integer>("rowId"));
+        studentsAssignmentTabTableStudentCol.setCellValueFactory(new PropertyValueFactory<ChatUserResponse, String>("fullName"));
     }
 
 
@@ -288,14 +292,18 @@ public class HelloController implements Initializable {
                     profileEmailText.setText(SecureStorage.getEmail());
                     profileRoleText.setText(getRoleDisplayName(SecureStorage.getRole()));
                     getStudentCourses(null);
-                    getUsersByRole(null);
+                    getTeachers(null);
                     getCourses(null);
+                    getStudents(null);
                     getPredictedGradesHistory(null);
                     studentSearchInput.textProperty().addListener((observable, oldValue, newValue) -> {
                         filterStudentsTable(newValue);
                     });
                     coursesTabSearchInput.textProperty().addListener((observable, oldValue, newValue) -> {
                         filterCoursesTable(newValue);
+                    });
+                    studentsAssignmentTabSearchInput.textProperty().addListener((observable, oldValue, newValue) -> {
+                        filterStudentsAssignmentTable(newValue);
                     });
                     redirectToTab(profileTab);
                 }
@@ -340,6 +348,51 @@ public class HelloController implements Initializable {
             }
         }
         throw new IllegalArgumentException("Invalid display name: " + displayName);
+    }
+
+
+
+    // Students assignments
+    @FXML
+    void getStudents(ActionEvent event) {
+        userService.getStudents(new ChaUserCallback() {
+            @Override
+            public void onChaUserSuccess(List<ChatUserResponse> list) {
+                studentsAssignmentTabTable.setItems(FXCollections.observableArrayList(list));
+                allStudentsAssignments.clear();
+                allStudentsAssignments.setAll(list);
+            }
+
+            @Override
+            public void onChaUserFailure(String errorMessage) {
+
+            }
+        });
+    }
+
+    @FXML
+    void studentAssignmentRowClicked(MouseEvent event) {
+        ChatUserResponse clickedStudent = studentsAssignmentTabTable.getSelectionModel().getSelectedItem();
+//        assignmentsInput.setText(String.valueOf(clickedStudent.getAssignments()));
+    }
+
+    private void filterStudentsAssignmentTable(String keyword) {
+        if (keyword == null || keyword.isBlank()) {
+            studentsAssignmentTabTable.setItems(allStudentsAssignments);
+            return;
+        }
+
+        ObservableList<ChatUserResponse> filteredStudents = FXCollections.observableArrayList();
+
+        for (ChatUserResponse student : allStudentsAssignments) {
+            if (student != null && student.getFullName() != null &&
+                    student.getFullName().toLowerCase().contains(keyword.toLowerCase())) {
+                filteredStudents.add(student);
+            }
+        }
+
+        studentsAssignmentTabTable.setItems(filteredStudents);
+        studentsAssignmentTabTable.refresh();
     }
 
 
@@ -596,10 +649,10 @@ public class HelloController implements Initializable {
     }
 
     @FXML
-    void getUsersByRole(ActionEvent event) {
-        userService.getUsersByRole(new ChaUserCallback() {
+    void getTeachers(ActionEvent event) {
+        userService.getTeachers(new ChaUserCallback() {
             @Override
-            public void onChaUserSuccess(List<ChatUser> list) {
+            public void onChaUserSuccess(List<ChatUserResponse> list) {
                 List<String> emailList = list.stream()
                         .map(user -> getFullNameFromEmail(user.getEmail()))
                         .toList();

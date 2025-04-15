@@ -47,7 +47,6 @@ public class CourseServiceImpl {
             @Override
             public void onResponse(Call<List<CourseResponse>> call, Response<List<CourseResponse>> response) {
                 if (response.isSuccessful() && response.body() != null) {
-                    System.out.println(response.body());
                     callback.onAllCourseSuccess(response.body());
                 } else {
                     callback.onCourseFailure("Failed to fetch courses. Response code: " + response.code());
