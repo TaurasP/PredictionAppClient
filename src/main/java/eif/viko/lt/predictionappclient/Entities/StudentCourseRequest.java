@@ -8,11 +8,14 @@ public class StudentCourseRequest {
     private double finalExam;
     private String grade;
     private String predictedGrade;
+    private String courseName;
+    private String studentName;
+    private String teacherName;
 
     public StudentCourseRequest() {
     }
 
-    public StudentCourseRequest(Long id, double attendance, double assignments, double midterm, double finalExam, String grade, String predictedGrade) {
+    public StudentCourseRequest(Long id, double attendance, double assignments, double midterm, double finalExam, String grade, String predictedGrade, String courseName, String studentName, String teacherName) {
         this.id = id;
         this.attendance = attendance;
         this.assignments = assignments;
@@ -20,6 +23,9 @@ public class StudentCourseRequest {
         this.finalExam = finalExam;
         this.grade = grade;
         this.predictedGrade = predictedGrade;
+        this.courseName = courseName;
+        this.studentName = studentName;
+        this.teacherName = teacherName;
     }
 
     public Long getId() {
@@ -76,5 +82,29 @@ public class StudentCourseRequest {
 
     public void setPredictedGrade(String predictedGrade) {
         this.predictedGrade = predictedGrade;
+    }
+
+    public String getCourseName() {
+        return courseName;
+    }
+
+    public void setCourseName(String courseName) {
+        this.courseName = courseName;
+    }
+
+    public String getStudentName() {
+        return studentName;
+    }
+
+    public void setStudentName(String studentName) {
+        this.studentName = studentName;
+    }
+
+    public String getTeacherName() {
+        return teacherName;
+    }
+
+    public void setTeacherName(String teacherName) {
+        this.teacherName = teacherName;
     }
 }

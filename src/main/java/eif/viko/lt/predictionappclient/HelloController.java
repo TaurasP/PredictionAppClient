@@ -420,6 +420,47 @@ public class HelloController implements Initializable {
         studentsAssignmentTabTable.refresh();
     }
 
+    @FXML
+    void saveStudentCourse(ActionEvent event) {
+        String selectedStudent = studentsAssignmentTabTable.getSelectionModel().getSelectedItem().getFullName();
+        String selectedCourse = studentsAssignmentTabCoursesComboBox.getValue();
+        String selectedTeacher = studentsAssignmentTabTeacherInput.getText();
+
+        if (selectedStudent != null && selectedCourse != null && selectedTeacher != null) {
+            studentCourseService.saveStudentCourse(
+                    new StudentCourseRequest(
+                            null,
+                            0,
+                            0,
+                            0,
+                            0,
+                            null,
+                            null,
+                            selectedCourse,
+                            selectedStudent,
+                            selectedTeacher
+                    ),
+                    new RegisterCallback() {
+                        @Override
+                        public void onRegisterSuccess(String message) {
+
+                        }
+
+                        @Override
+                        public void onRegisterFailure(String errorMessage) {
+
+                        }
+                    }
+            );
+        } else {
+            Alert alert = new Alert(Alert.AlertType.WARNING);
+            alert.setTitle("Warning");
+            alert.setHeaderText("Incomplete Input");
+            alert.setContentText("Please select a student, course, and teacher before saving.");
+            alert.showAndWait();
+        }
+    }
+
 
 
     // Students
@@ -530,7 +571,10 @@ public class HelloController implements Initializable {
                 selectedStudent.getMidterm(),
                 selectedStudent.getFinalExam(),
                 selectedStudent.getGrade(),
-                selectedStudent.getPredictedGrade()
+                selectedStudent.getPredictedGrade(),
+                null,
+                null,
+                null
         ), new StudentCourseUpdateCallback() {
 
             @Override
@@ -544,6 +588,7 @@ public class HelloController implements Initializable {
             }
         });
     }
+    
 
 
     // Courses
