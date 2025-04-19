@@ -9,6 +9,8 @@ import eif.viko.lt.predictionappclient.Dto.StudentRequest;
 import eif.viko.lt.predictionappclient.Entities.Role;
 import eif.viko.lt.predictionappclient.Services.*;
 import javafx.application.Platform;
+import javafx.beans.property.BooleanProperty;
+import javafx.beans.property.SimpleBooleanProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
@@ -62,6 +64,28 @@ public class HelloController implements Initializable {
     private PasswordField passwordRegField;
     @FXML
     private Button regBtn;
+
+
+    // Courses
+    @FXML
+    private Tab coursesTab;
+    @FXML
+    private TextField coursesTabCourseNameInput;
+    @FXML
+    private ComboBox<String> coursesTabTeacherComboBox;
+    @FXML
+    private Button coursesTabSaveBtn;
+    @FXML
+    private TextField coursesTabSearchInput;
+    @FXML
+    private TableView<CourseResponse> coursesTabCoursesTable;
+    @FXML
+    private TableColumn<CourseResponse, Integer> coursesTabTableRowIdCol;
+    @FXML
+    private TableColumn<CourseResponse, String> coursesTabTableCourseCol;
+    @FXML
+    private TableColumn<CourseResponse, String> coursesTabTableTeacherCol;
+    private ObservableList<CourseResponse> allCourses = FXCollections.observableArrayList();
 
 
     // Students assignment
@@ -132,31 +156,14 @@ public class HelloController implements Initializable {
     private Button predictGradeBtn;
 
 
-    // Courses
-    @FXML
-    private Tab coursesTab;
-    @FXML
-    private TextField coursesTabCourseNameInput;
-    @FXML
-    private ComboBox<String> coursesTabTeacherComboBox;
-    @FXML
-    private Button coursesTabSaveBtn;
-    @FXML
-    private TextField coursesTabSearchInput;
-    @FXML
-    private TableView<CourseResponse> coursesTabCoursesTable;
-    @FXML
-    private TableColumn<CourseResponse, Integer> coursesTabTableRowIdCol;
-    @FXML
-    private TableColumn<CourseResponse, String> coursesTabTableCourseCol;
-    @FXML
-    private TableColumn<CourseResponse, String> coursesTabTableTeacherCol;
-    private ObservableList<CourseResponse> allCourses = FXCollections.observableArrayList();
-
 
     // Predicted grades
     @FXML
     private Tab perdictedGradesTab;
+    @FXML
+    private Label predictedGradesTableSearchLabel;
+    @FXML
+    private TextField predictedGradesTableSearchInput;
     @FXML
     private TableView<PredictedGradeHistoryResponse> predictedGradesTable;
     @FXML
@@ -177,6 +184,7 @@ public class HelloController implements Initializable {
     private TableColumn<PredictedGradeHistoryResponse, Double> predictedGradesMidTermCol;
     @FXML
     private TableColumn<PredictedGradeHistoryResponse, Double> predictedGradesFinalExamCol;
+    private ObservableList<PredictedGradeHistoryResponse> allPredictedGrades = FXCollections.observableArrayList();
 
 
     // Chat
@@ -211,6 +219,7 @@ public class HelloController implements Initializable {
     private boolean isAdmin = false;
     private boolean isTeacher = false;
     private boolean isStudent = false;
+    private final BooleanProperty isPredictedGradeSearchVisible = new SimpleBooleanProperty(false);
 
 
     @Override
@@ -276,48 +285,62 @@ public class HelloController implements Initializable {
             authService.login(user, pass, new LoginCallback() {
                 @Override
                 public void onLoginSuccess(String token) {
-                    isAdmin = SecureStorage.getRole() != null && SecureStorage.getRole().equals(Role.ADMIN.name());
-                    isTeacher = SecureStorage.getRole() != null && SecureStorage.getRole().equals(Role.TEACHER.name());
-                    isStudent = SecureStorage.getRole() != null && SecureStorage.getRole().equals(Role.STUDENT.name());
+                    Platform.runLater(() -> {
+                        isAdmin = SecureStorage.getRole() != null && SecureStorage.getRole().equals(Role.ADMIN.name());
+                        isTeacher = SecureStorage.getRole() != null && SecureStorage.getRole().equals(Role.TEACHER.name());
+                        isStudent = SecureStorage.getRole() != null && SecureStorage.getRole().equals(Role.STUDENT.name());
 
-                    authPanelBox.setVisible(false);
-                    mainTabLabel.setText("Sveiki prisijungę");
-                    logoutBtn.setVisible(true);
-                    regTab.setDisable(!isAdmin);
-                    loginTab.setDisable(true);
-                    roleComboBox.setVisible(isAdmin);
-                    chatTab.setDisable(false);
-                    studentsTab.setDisable(isStudent);
-                    studentsAssignmentTab.setDisable(isStudent);
-                    profileTab.setDisable(false);
-                    coursesTab.setDisable(!isAdmin);
-                    perdictedGradesTab.setDisable(false);
-                    profileNameText.setText(extractName(getFullNameFromEmail(SecureStorage.getEmail())));
-                    profileSurnameText.setText(extractSurname(getFullNameFromEmail(SecureStorage.getEmail())));
-                    profileEmailText.setText(SecureStorage.getEmail());
-                    profileRoleText.setText(getRoleDisplayName(SecureStorage.getRole()));
-                    getStudentCourses(null);
-                    getTeachers(null);
-                    getCourses(null);
-                    getStudents(null);
-                    getPredictedGradesHistory(null);
-                    studentSearchInput.textProperty().addListener((observable, oldValue, newValue) -> {
-                        filterStudentsTable(newValue);
-                    });
-                    coursesTabSearchInput.textProperty().addListener((observable, oldValue, newValue) -> {
-                        filterCoursesTable(newValue);
-                    });
-                    studentsAssignmentTabSearchInput.textProperty().addListener((observable, oldValue, newValue) -> {
-                        filterStudentsAssignmentTable(newValue);
-                    });
-                    redirectToTab(profileTab);
+                        authPanelBox.setVisible(false);
+                        username.setText("");
+                        password.setText("");
+                        logoutBtn.setVisible(true);
+                        regTab.setDisable(!isAdmin);
+                        loginTab.setDisable(true);
+                        roleComboBox.setVisible(isAdmin);
+                        chatTab.setDisable(false);
+                        studentsTab.setDisable(isStudent);
+                        studentsAssignmentTab.setDisable(isStudent);
+                        profileTab.setDisable(false);
+                        coursesTab.setDisable(!isAdmin);
+                        perdictedGradesTab.setDisable(false);
+                        profileNameText.setText(extractName(getFullNameFromEmail(SecureStorage.getEmail())));
+                        profileSurnameText.setText(extractSurname(getFullNameFromEmail(SecureStorage.getEmail())));
+                        profileEmailText.setText(SecureStorage.getEmail());
+                        profileRoleText.setText(getRoleDisplayName(SecureStorage.getRole()));
+                        getStudentCourses(null);
+                        getTeachers(null);
+                        getCourses(null);
+                        getStudents(null);
+                        getPredictedGradesHistory(null);
+                        studentSearchInput.textProperty().addListener((observable, oldValue, newValue) -> {
+                            filterStudentsTable(newValue);
+                        });
+                        coursesTabSearchInput.textProperty().addListener((observable, oldValue, newValue) -> {
+                            filterCoursesTable(newValue);
+                        });
+                        studentsAssignmentTabSearchInput.textProperty().addListener((observable, oldValue, newValue) -> {
+                            filterStudentsAssignmentTable(newValue);
+                        });
+                        predictedGradesTableSearchInput.textProperty().addListener((observable, oldValue, newValue) -> {
+                            filterPredictedGradesTable(newValue);
+                        });
+                        predictedGradesTableSearchLabel.setVisible(!isStudent);
+                        predictedGradesTableSearchInput.setVisible(!isStudent);
+
+                        predictedGradesStudentCol.visibleProperty().bind(isPredictedGradeSearchVisible);
+                        isPredictedGradeSearchVisible.set(!isStudent);
+
+                        redirectToTab(profileTab);
 //                    studentsAssignmentTabCoursesComboBox.setItems(FXCollections.observableArrayList(allCourses.stream().map(CourseResponse::getCourseName).toList()));
-                }
+                    });
+                    }
 
                 @Override
                 public void onLoginFailure(String errorMessage) {
-                    chatTab.setDisable(true);
-                    profileTab.setDisable(true);
+                    Platform.runLater(() -> {
+                        chatTab.setDisable(true);
+                        profileTab.setDisable(true);
+                    });
                 }
             });
         }
@@ -335,7 +358,12 @@ public class HelloController implements Initializable {
             authService.register(email, password, role, new RegisterCallback() {
                 @Override
                 public void onRegisterSuccess(String message) {
-
+                    Platform.runLater(() -> {
+                        emailRegField.setText("");
+                        passwordRegField.setText("");
+                        roleComboBox.setValue(null);
+                        regLabel.setText("");
+                    });
                 }
 
                 @Override
@@ -358,15 +386,90 @@ public class HelloController implements Initializable {
 
 
 
+    // Courses
+    @FXML
+    void getCourses(ActionEvent event) {
+        courseService.getCourses(new CourseCallback() {
+            @Override
+            public void onCourseSuccess(String message) {
+
+            }
+
+            @Override
+            public void onAllCourseSuccess(List<CourseResponse> courses) {
+                Platform.runLater(() -> {
+                    ObservableList<CourseResponse> items = coursesTabCoursesTable.getItems();
+                    items.clear();
+                    items.addAll(courses);
+                    allCourses.clear();
+                    allCourses.setAll(courses);
+                });
+            }
+
+            @Override
+            public void onCourseFailure(String errorMessage) {
+
+            }
+        });
+    }
+
+    private void filterCoursesTable(String keyword) {
+        if (keyword == null || keyword.trim().isEmpty()) {
+            coursesTabCoursesTable.setItems(allCourses);
+            return;
+        }
+
+        ObservableList<CourseResponse> filteredCourses = FXCollections.observableArrayList();
+
+        for (CourseResponse course : allCourses) {
+            if (course.getCourseName().toLowerCase().contains(keyword.toLowerCase()) ||
+                    course.getTeacher().toLowerCase().contains(keyword.toLowerCase())) {
+                filteredCourses.add(course);
+            }
+        }
+
+        coursesTabCoursesTable.setItems(filteredCourses);
+        coursesTabCoursesTable.refresh();
+    }
+
+    @FXML
+    void saveCourse(ActionEvent event) {
+        String courseName = coursesTabCourseNameInput.getText();
+        String teacher = coursesTabTeacherComboBox.getValue();
+
+        if (courseName != null && !teacher.isEmpty()) {
+            courseService.saveCourse(courseName, teacher, new CourseCallback() {
+                @Override
+                public void onCourseSuccess(String message) {
+                    // todo update table after new course is created
+                }
+
+                @Override
+                public void onAllCourseSuccess(List<CourseResponse> courses) {
+
+                }
+
+                @Override
+                public void onCourseFailure(String errorMessage) {
+
+                }
+            });
+        }
+    }
+
+
+
     // Students assignments
     @FXML
     void getStudents(ActionEvent event) {
         userService.getStudents(new ChaUserCallback() {
             @Override
             public void onChaUserSuccess(List<ChatUserResponse> list) {
-                studentsAssignmentTabTable.setItems(FXCollections.observableArrayList(list));
-                allStudentsAssignments.clear();
-                allStudentsAssignments.setAll(list);
+                Platform.runLater(() -> {
+                    studentsAssignmentTabTable.setItems(FXCollections.observableArrayList(list));
+                    allStudentsAssignments.clear();
+                    allStudentsAssignments.setAll(list);
+                });
             }
 
             @Override
@@ -534,14 +637,17 @@ public class HelloController implements Initializable {
         gradePredictionService.predict(request, new GradePredictionCallback() {
             @Override
             public void onPredictionSuccess(String predictedGrade) {
-                predictedGradeInput.setText(predictedGrade);
-                // post request to save data to StudentCourse and PredictedGradeHistory
+                Platform.runLater(() -> {
+                    predictedGradeInput.setText(predictedGrade);
+                });
             }
 
             @Override
             public void onPredictionFailure(String errorMessage) {
-                predictedGradeInput.setText("Prediction failed!");
-                System.err.println("Error: " + errorMessage);
+                Platform.runLater(() -> {
+                    predictedGradeInput.setText("Prediction failed!");
+                    System.err.println("Error: " + errorMessage);
+                });
             }
         });
     }
@@ -591,79 +697,7 @@ public class HelloController implements Initializable {
             }
         });
     }
-    
 
-
-    // Courses
-    @FXML
-    void getCourses(ActionEvent event) {
-        courseService.getCourses(new CourseCallback() {
-            @Override
-            public void onCourseSuccess(String message) {
-
-            }
-
-            @Override
-            public void onAllCourseSuccess(List<CourseResponse> courses) {
-                Platform.runLater(() -> {
-                    ObservableList<CourseResponse> items = coursesTabCoursesTable.getItems();
-                    items.clear();
-                    items.addAll(courses);
-                    allCourses.clear();
-                    allCourses.setAll(courses);
-                });
-            }
-
-            @Override
-            public void onCourseFailure(String errorMessage) {
-
-            }
-        });
-    }
-
-    private void filterCoursesTable(String keyword) {
-        if (keyword == null || keyword.trim().isEmpty()) {
-            coursesTabCoursesTable.setItems(allCourses);
-            return;
-        }
-
-        ObservableList<CourseResponse> filteredCourses = FXCollections.observableArrayList();
-
-        for (CourseResponse course : allCourses) {
-            if (course.getCourseName().toLowerCase().contains(keyword.toLowerCase()) ||
-                    course.getTeacher().toLowerCase().contains(keyword.toLowerCase())) {
-                filteredCourses.add(course);
-            }
-        }
-
-        coursesTabCoursesTable.setItems(filteredCourses);
-        coursesTabCoursesTable.refresh();
-    }
-
-    @FXML
-    void saveCourse(ActionEvent event) {
-        String courseName = coursesTabCourseNameInput.getText();
-        String teacher = coursesTabTeacherComboBox.getValue();
-
-        if (courseName != null && !teacher.isEmpty()) {
-            courseService.saveCourse(courseName, teacher, new CourseCallback() {
-                @Override
-                public void onCourseSuccess(String message) {
-                    // todo update table after new course is created
-                }
-
-                @Override
-                public void onAllCourseSuccess(List<CourseResponse> courses) {
-
-                }
-
-                @Override
-                public void onCourseFailure(String errorMessage) {
-
-                }
-            });
-        }
-    }
 
 
     // Predicted grades history
@@ -680,8 +714,12 @@ public class HelloController implements Initializable {
                                 .filter(it -> it.getStudentName().equals(getFullNameFromEmail(studentEmail)))
                                 .toList();
                         predictedGradesTable.setItems(FXCollections.observableArrayList(filteredList));
+                        allPredictedGrades.clear();
+                        allPredictedGrades.setAll(filteredList);
                     } else {
                         predictedGradesTable.setItems(FXCollections.observableArrayList(list));
+                        allPredictedGrades.clear();
+                        allPredictedGrades.setAll(list);
                     }
                 });
             }
@@ -689,14 +727,35 @@ public class HelloController implements Initializable {
             @Override
             public void onFailure(String errorMessage) {
                 Platform.runLater(() -> {
-//                    Alert alert = new Alert(Alert.AlertType.ERROR);
-//                    alert.setTitle("Error");
-//                    alert.setHeaderText("Failed to Load Predicted Grades History");
-//                    alert.setContentText(errorMessage);
-//                    alert.showAndWait();
+                    Alert alert = new Alert(Alert.AlertType.ERROR);
+                    alert.setTitle("Error");
+                    alert.setHeaderText("Failed to Load Predicted Grades History");
+                    alert.setContentText(errorMessage);
+                    alert.showAndWait();
                 });
             }
         });
+    }
+
+    private void filterPredictedGradesTable(String keyword) {
+        if (keyword == null || keyword.trim().isEmpty()) {
+            predictedGradesTable.setItems(allPredictedGrades);
+            return;
+        }
+
+        ObservableList<PredictedGradeHistoryResponse> filteredPredictedGrades = FXCollections.observableArrayList();
+
+        for (PredictedGradeHistoryResponse predictedGrade : allPredictedGrades) {
+            if (predictedGrade.getDate().contains(keyword.toLowerCase())
+                    || predictedGrade.getStudentName().toLowerCase().contains(keyword.toLowerCase()) ||
+                    predictedGrade.getCourseName().toLowerCase().contains(keyword.toLowerCase()) ||
+                    predictedGrade.getTeacherName().toLowerCase().contains(keyword.toLowerCase())) {
+                filteredPredictedGrades.add(predictedGrade);
+            }
+        }
+
+        predictedGradesTable.setItems(filteredPredictedGrades);
+        predictedGradesTable.refresh();
     }
 
 
@@ -723,7 +782,9 @@ public class HelloController implements Initializable {
 
                 @Override
                 public void onLoginFailure(String errorMessage) {
-                    System.out.println(errorMessage);
+                    Platform.runLater(() -> {
+                        System.out.println(errorMessage);
+                    });
                 }
             });
         }
@@ -734,11 +795,13 @@ public class HelloController implements Initializable {
         userService.getTeachers(new ChaUserCallback() {
             @Override
             public void onChaUserSuccess(List<ChatUserResponse> list) {
-                List<String> emailList = list.stream()
-                        .map(user -> getFullNameFromEmail(user.getEmail()))
-                        .toList();
+                Platform.runLater(() -> {
+                    List<String> emailList = list.stream()
+                            .map(user -> getFullNameFromEmail(user.getEmail()))
+                            .toList();
 
-                coursesTabTeacherComboBox.setItems(FXCollections.observableArrayList(emailList));
+                    coursesTabTeacherComboBox.setItems(FXCollections.observableArrayList(emailList));
+                });
             }
 
             @Override
