@@ -208,6 +208,9 @@ public class HelloController implements Initializable {
     private final UserServiceImpl userService = new UserServiceImpl();
     private final CourseServiceImpl courseService = new CourseServiceImpl();
     private final PredictedGradeHistoryServiceImpl predictedGradeHistoryService = new PredictedGradeHistoryServiceImpl();
+    private boolean isAdmin = false;
+    private boolean isTeacher = false;
+    private boolean isStudent = false;
 
 
     @Override
@@ -273,9 +276,9 @@ public class HelloController implements Initializable {
             authService.login(user, pass, new LoginCallback() {
                 @Override
                 public void onLoginSuccess(String token) {
-                    boolean isAdmin = SecureStorage.getRole() != null && SecureStorage.getRole().equals(Role.ADMIN.name());
-                    boolean isTeacher = SecureStorage.getRole() != null && SecureStorage.getRole().equals(Role.TEACHER.name());
-                    boolean isStudent = SecureStorage.getRole() != null && SecureStorage.getRole().equals(Role.STUDENT.name());
+                    isAdmin = SecureStorage.getRole() != null && SecureStorage.getRole().equals(Role.ADMIN.name());
+                    isTeacher = SecureStorage.getRole() != null && SecureStorage.getRole().equals(Role.TEACHER.name());
+                    isStudent = SecureStorage.getRole() != null && SecureStorage.getRole().equals(Role.STUDENT.name());
 
                     authPanelBox.setVisible(false);
                     mainTabLabel.setText("Sveiki prisijungę");
@@ -670,7 +673,16 @@ public class HelloController implements Initializable {
             @Override
             public void onSuccess(List<PredictedGradeHistoryResponse> list) {
                 Platform.runLater(() -> {
-                     predictedGradesTable.setItems(FXCollections.observableArrayList(list));
+                    list.sort((a, b) -> b.getDate().compareTo(a.getDate()));
+                    if (isStudent) {
+                        String studentEmail = SecureStorage.getEmail();
+                        List<PredictedGradeHistoryResponse> filteredList = list.stream()
+                                .filter(it -> it.getStudentName().equals(getFullNameFromEmail(studentEmail)))
+                                .toList();
+                        predictedGradesTable.setItems(FXCollections.observableArrayList(filteredList));
+                    } else {
+                        predictedGradesTable.setItems(FXCollections.observableArrayList(list));
+                    }
                 });
             }
 
