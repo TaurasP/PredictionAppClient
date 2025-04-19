@@ -47,7 +47,9 @@ public class ChatBotServiceImpl {
             case "__label__syntax" -> "https://www.w3schools.com/java/java_syntax.asp";
             case "__label__oop" -> "https://www.w3schools.com/java/java_oop.asp";
             case "__label__exception" -> "https://www.w3schools.com/java/java_try_catch.asp";
-            case "__label__spring" -> "https://www.tutorialspoint.com/spring_boot/spring_boot_building_restful_web_services.htm";
+            case "__label__rest" -> "https://www.tutorialspoint.com/spring_boot/spring_boot_building_restful_web_services.htm";
+            case "__label__spring" -> "https://www.tutorialspoint.com/spring_boot/index.htm";
+            case "__label__method" -> "https://www.w3schools.com/java/java_methods.asp";
             default -> "No category found";
         };
     }

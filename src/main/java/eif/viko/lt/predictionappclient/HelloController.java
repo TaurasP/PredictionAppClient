@@ -239,9 +239,10 @@ public class HelloController implements Initializable {
         roleComboBox.setVisible(false);
         mainTabLabel.setText(SecureStorage.getToken());
         chatBotAnswerTextArea.setText("Sveiki! Užduokite klausimą iš Java programavimo kalbos.\n");
-
-        //Enter simbolio paspaudimas
-        chatBotMessageInput.setOnKeyPressed(this::handleKeyPress);
+        
+        chatBotMessageInput.setOnKeyPressed(this::handleChatKeyPress);
+        passwordRegField.setOnKeyPressed(this::handleRegisterKeyPress);
+        password.setOnKeyPressed(this::handleLoginKeyPress);
 
         studentRowIdCol.setCellValueFactory(new PropertyValueFactory<StudentCourseResponse, Integer>("rowId"));
         studentNameCol.setCellValueFactory(new PropertyValueFactory<StudentCourseResponse, String>("studentName"));
@@ -346,6 +347,13 @@ public class HelloController implements Initializable {
         }
     }
 
+    private void handleLoginKeyPress(KeyEvent event) {
+        if (event.getCode() == KeyCode.ENTER) {
+            login(new ActionEvent());
+        }
+    }
+
+
 
     // Register
     @FXML
@@ -382,6 +390,12 @@ public class HelloController implements Initializable {
             }
         }
         throw new IllegalArgumentException("Invalid display name: " + displayName);
+    }
+
+    private void handleRegisterKeyPress(KeyEvent event) {
+        if (event.getCode() == KeyCode.ENTER) {
+            register(new ActionEvent());
+        }
     }
 
 
@@ -811,11 +825,9 @@ public class HelloController implements Initializable {
         });
     }
 
-    private void handleKeyPress(KeyEvent event) {
+    private void handleChatKeyPress(KeyEvent event) {
         if (event.getCode() == KeyCode.ENTER) {
-            // Trigger the askChatBot method
             askChatBot(new ActionEvent());
-            // Clear the input field after sending the message
             chatBotMessageInput.clear();
         }
     }
