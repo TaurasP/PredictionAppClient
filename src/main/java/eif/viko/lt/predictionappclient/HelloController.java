@@ -239,9 +239,9 @@ public class HelloController implements Initializable {
         roleComboBox.setVisible(false);
         mainTabLabel.setText(SecureStorage.getToken());
         chatBotAnswerTextArea.setText("Sveiki! Užduokite klausimą iš Java programavimo kalbos.\n");
-        
+
         chatBotMessageInput.setOnKeyPressed(this::handleChatKeyPress);
-        passwordRegField.setOnKeyPressed(this::handleRegisterKeyPress);
+        roleComboBox.setOnKeyPressed(this::handleRegisterKeyPress);
         password.setOnKeyPressed(this::handleLoginKeyPress);
 
         studentRowIdCol.setCellValueFactory(new PropertyValueFactory<StudentCourseResponse, Integer>("rowId"));
@@ -455,7 +455,7 @@ public class HelloController implements Initializable {
             courseService.saveCourse(courseName, teacher, new CourseCallback() {
                 @Override
                 public void onCourseSuccess(String message) {
-                    // todo update table after new course is created
+
                 }
 
                 @Override
