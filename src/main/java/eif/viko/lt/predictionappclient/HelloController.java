@@ -371,6 +371,7 @@ public class HelloController implements Initializable {
                         passwordRegField.setText("");
                         roleComboBox.setValue(null);
                         regLabel.setText("");
+                        getTeachers(new ActionEvent());
                     });
                 }
 
