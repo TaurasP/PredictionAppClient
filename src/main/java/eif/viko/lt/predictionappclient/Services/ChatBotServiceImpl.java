@@ -26,7 +26,7 @@ public class ChatBotServiceImpl {
                 if (response.isSuccessful()) {
                     ChatBotResponse chatBotResponse = response.body();
                     if (chatBotResponse != null) {
-                        callback.onLoginSuccess(chatBotResponse.getBestCategory());
+                        callback.onLoginSuccess(getAnswerByCategory(chatBotResponse.getBestCategory()));
                         System.out.println("Best Category: " + chatBotResponse.getBestCategory());
                         System.out.println("All Categories: " + chatBotResponse.getAllCategories());
                     }else {
@@ -40,6 +40,16 @@ public class ChatBotServiceImpl {
                 callback.onLoginFailure(throwable.getMessage());
             }
         });
+    }
+
+    private String getAnswerByCategory(String category) {
+        return switch (category) {
+            case "__label__syntax" -> "https://www.w3schools.com/java/java_syntax.asp";
+            case "__label__oop" -> "https://www.w3schools.com/java/java_oop.asp";
+            case "__label__exception" -> "https://www.w3schools.com/java/java_try_catch.asp";
+            case "__label__spring" -> "https://www.tutorialspoint.com/spring_boot/spring_boot_building_restful_web_services.htm";
+            default -> "No category found";
+        };
     }
 
 }

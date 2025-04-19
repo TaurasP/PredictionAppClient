@@ -8,11 +8,13 @@ module eif.viko.lt.predictionappclient {
     requires retrofit2;
     requires retrofit2.converter.gson;
     requires okhttp3;
+    requires java.desktop;
 
 
     opens eif.viko.lt.predictionappclient.Dto to com.google.gson;
 
     opens eif.viko.lt.predictionappclient to javafx.fxml;
     exports eif.viko.lt.predictionappclient;
-    opens eif.viko.lt.predictionappclient.Entities to com.google.gson, javafx.base;
+    exports eif.viko.lt.predictionappclient.Entities;
+    opens eif.viko.lt.predictionappclient.Entities to com.google.gson, javafx.base, javafx.fxml;
 }
