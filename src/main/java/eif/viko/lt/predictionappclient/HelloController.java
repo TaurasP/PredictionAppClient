@@ -216,6 +216,7 @@ public class HelloController implements Initializable {
     private boolean isTeacher = false;
     private boolean isStudent = false;
     private final BooleanProperty isPredictedGradeSearchVisible = new SimpleBooleanProperty(false);
+    private final BooleanProperty isPredictedGradeTeacherVisible = new SimpleBooleanProperty(false);
     private final BooleanProperty isTeacherInStudentCoursesVisible = new SimpleBooleanProperty(false);
 
 
@@ -326,6 +327,8 @@ public class HelloController implements Initializable {
 
                         predictedGradesStudentCol.visibleProperty().bind(isPredictedGradeSearchVisible);
                         isPredictedGradeSearchVisible.set(!isStudent);
+                        predictedGradesTeacherCol.visibleProperty().bind(isPredictedGradeTeacherVisible);
+                        isPredictedGradeTeacherVisible.set(!isTeacher);
                         teacherNameCol.visibleProperty().bind(isTeacherInStudentCoursesVisible);
                         isTeacherInStudentCoursesVisible.set(!isTeacher);
 
@@ -870,9 +873,17 @@ public class HelloController implements Initializable {
                         predictedGradesTable.setItems(FXCollections.observableArrayList(filteredList));
                         allPredictedGrades.clear();
                         allPredictedGrades.setAll(filteredList);
+                    } else if (isTeacher) {
+                        String teacherEmail = SecureStorage.getEmail();
+                        List<PredictedGradeHistoryResponse> filteredList = list.stream()
+                                .filter(it -> it.getTeacherName().equals(getFullNameFromEmail(teacherEmail)))
+                                .toList();
+                        predictedGradesTable.setItems(FXCollections.observableArrayList(filteredList));
+                        allPredictedGrades.clear();
+                        allPredictedGrades.setAll(filteredList);
                     } else {
                         predictedGradesTable.setItems(FXCollections.observableArrayList(list));
-                        allPredictedGrades.clear();
+                         allPredictedGrades.clear();
                         allPredictedGrades.setAll(list);
                     }
                 });
