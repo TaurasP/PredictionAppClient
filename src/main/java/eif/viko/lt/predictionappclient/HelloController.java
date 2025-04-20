@@ -38,8 +38,6 @@ public class HelloController implements Initializable {
     @FXML
     private VBox authPanelBox;
     @FXML
-    private Text mainTabLabel;
-    @FXML
     private TextField username;
     @FXML
     private PasswordField password;
@@ -54,8 +52,6 @@ public class HelloController implements Initializable {
     private Tab regTab;
     @FXML
     private VBox regPanelBox;
-    @FXML
-    private Label regLabel;
     @FXML
     private TextField emailRegField;
     @FXML
@@ -237,7 +233,6 @@ public class HelloController implements Initializable {
         studentsAssignmentTab.setDisable(isAuthenticated);
         roleComboBox.getItems().addAll(Role.ADMIN.getDisplayName(), Role.TEACHER.getDisplayName(), Role.STUDENT.getDisplayName());
         roleComboBox.setVisible(false);
-        mainTabLabel.setText(SecureStorage.getToken());
         chatBotAnswerTextArea.setText("Sveiki! Užduokite klausimą iš Java programavimo kalbos.\n");
 
         chatBotMessageInput.setOnKeyPressed(this::handleChatKeyPress);
@@ -367,11 +362,14 @@ public class HelloController implements Initializable {
                 @Override
                 public void onRegisterSuccess(String message) {
                     Platform.runLater(() -> {
+                        showAlert(Alert.AlertType.INFORMATION, "Pranešimas", "Naudotojo sukūrimas",
+                                getRoleDisplayName(role) + " " + getFullNameFromEmail(email) + " sėkmingai sukurtas.");
+
                         emailRegField.setText("");
                         passwordRegField.setText("");
                         roleComboBox.setValue(null);
-                        regLabel.setText("");
                         getTeachers(new ActionEvent());
+                        getStudents(new ActionEvent());
                     });
                 }
 
@@ -380,7 +378,6 @@ public class HelloController implements Initializable {
 
                 }
             });
-            regLabel.setText("User " + email + " created successfully!");
         }
     }
 
@@ -956,7 +953,6 @@ public class HelloController implements Initializable {
     void logout(ActionEvent event) {
         clearSecureStorage();
         authPanelBox.setVisible(true);
-        mainTabLabel.setText("");
         logoutBtn.setVisible(false);
         regTab.setDisable(false);
         loginTab.setDisable(false);

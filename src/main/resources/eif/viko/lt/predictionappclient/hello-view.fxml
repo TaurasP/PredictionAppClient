@@ -19,9 +19,8 @@
     <Tab fx:id="loginTab" text="Prisijungimo langas">
         <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
          <children>
-            <VBox fx:id="authPanelBox" layoutX="14.0" layoutY="14.0" prefHeight="200.0" prefWidth="500.0">
+            <VBox fx:id="authPanelBox" layoutX="14.0" layoutY="13.0" prefHeight="200.0" prefWidth="500.0">
                <children>
-                  <Text fx:id="mainTabLabel" strokeType="OUTSIDE" strokeWidth="0.0" wrappingWidth="200.0" />
                   <Text strokeType="OUTSIDE" strokeWidth="0.0" text="El. paštas">
                      <VBox.margin>
                         <Insets top="10.0" />
@@ -47,7 +46,6 @@
             <children>
                <VBox fx:id="regPanelBox" layoutX="14.0" layoutY="13.0" prefHeight="200.0" prefWidth="500.0">
                   <children>
-                     <Label fx:id="regLabel" maxWidth="-Infinity" prefHeight="14.0" prefWidth="500.0" />
                      <Text strokeType="OUTSIDE" strokeWidth="0.0" text="El. paštas">
                         <VBox.margin>
                            <Insets top="10.0" />
