@@ -32,6 +32,10 @@ import static eif.viko.lt.predictionappclient.Utils.EmailToNameConverter.*;
 
 public class HelloController implements Initializable {
 
+    @FXML
+    private TabPane allTabsPane;
+
+
     // Login
     @FXML
     private Tab loginTab;
@@ -225,14 +229,14 @@ public class HelloController implements Initializable {
         clearSecureStorage();
         boolean isAuthenticated = SecureStorage.getToken() == null;
         authPanelBox.setVisible(isAuthenticated);
-        logoutBtn.setVisible(false);
-        chatTab.setDisable(isAuthenticated);
-        profileTab.setDisable(isAuthenticated);
-        studentsTab.setDisable(isAuthenticated);
-        regPanelBox.setVisible(isAuthenticated);
-        coursesTab.setDisable(isAuthenticated);
-        perdictedGradesTab.setDisable(isAuthenticated);
-        studentsAssignmentTab.setDisable(isAuthenticated);
+        removeTab(coursesTab);
+        removeTab(coursesTab);
+        removeTab(studentsAssignmentTab);
+        removeTab(studentsTab);
+        removeTab(perdictedGradesTab);
+        removeTab(chatTab);
+        removeTab(profileTab);
+
         roleComboBox.getItems().addAll(Role.ADMIN.getDisplayName(), Role.TEACHER.getDisplayName(), Role.STUDENT.getDisplayName());
         roleComboBox.setVisible(false);
         chatBotAnswerTextArea.setText("Sveiki! Užduokite klausimą iš Java programavimo kalbos.\n");
@@ -291,16 +295,33 @@ public class HelloController implements Initializable {
                         authPanelBox.setVisible(false);
                         username.setText("");
                         password.setText("");
-                        logoutBtn.setVisible(true);
-                        regTab.setDisable(!isAdmin);
-                        loginTab.setDisable(true);
+
+                        removeTab(loginTab);
+                        if (isAdmin) {
+                            restoreTab(0, regTab);
+                            restoreTab(1, coursesTab);
+                            restoreTab(2, studentsAssignmentTab);
+                            restoreTab(3, studentsTab);
+                            restoreTab(4, perdictedGradesTab);
+                            restoreTab(5, chatTab);
+                            restoreTab(6, profileTab);
+                        }
+                        if (isTeacher) {
+                            removeTab(regTab);
+                            restoreTab(0, studentsAssignmentTab);
+                            restoreTab(1, studentsTab);
+                            restoreTab(2, perdictedGradesTab);
+                            restoreTab(3, chatTab);
+                            restoreTab(4, profileTab);
+                        }
+                        if (isStudent) {
+                            removeTab(regTab);
+                            restoreTab(0, perdictedGradesTab);
+                            restoreTab(1, chatTab);
+                            restoreTab(2, profileTab);
+                        }
+
                         roleComboBox.setVisible(isAdmin);
-                        chatTab.setDisable(false);
-                        studentsTab.setDisable(isStudent);
-                        studentsAssignmentTab.setDisable(isStudent);
-                        profileTab.setDisable(false);
-                        coursesTab.setDisable(!isAdmin);
-                        perdictedGradesTab.setDisable(false);
                         profileNameText.setText(extractName(getFullNameFromEmail(SecureStorage.getEmail())));
                         profileSurnameText.setText(extractSurname(getFullNameFromEmail(SecureStorage.getEmail())));
                         profileEmailText.setText(SecureStorage.getEmail());
@@ -338,10 +359,7 @@ public class HelloController implements Initializable {
 
                 @Override
                 public void onLoginFailure(String errorMessage) {
-                    Platform.runLater(() -> {
-                        chatTab.setDisable(true);
-                        profileTab.setDisable(true);
-                    });
+
                 }
             });
         }
@@ -990,15 +1008,16 @@ public class HelloController implements Initializable {
     void logout(ActionEvent event) {
         clearSecureStorage();
         authPanelBox.setVisible(true);
-        logoutBtn.setVisible(false);
-        regTab.setDisable(false);
-        loginTab.setDisable(false);
-        chatTab.setDisable(true);
-        profileTab.setDisable(true);
-        studentsTab.setDisable(true);
-        studentsAssignmentTab.setDisable(true);
-        coursesTab.setDisable(true);
-        perdictedGradesTab.setDisable(true);
+        roleComboBox.setVisible(false);
+        restoreTab(0, loginTab);
+        restoreTab(1, regTab);
+        removeTab(coursesTab);
+        removeTab(studentsAssignmentTab);
+        removeTab(studentsTab);
+        removeTab(perdictedGradesTab);
+        removeTab(chatTab);
+        removeTab(profileTab);
+
         redirectToTab(loginTab);
     }
 
@@ -1006,13 +1025,6 @@ public class HelloController implements Initializable {
         SecureStorage.clearToken();
         SecureStorage.clearEmail();
         SecureStorage.clearRole();
-    }
-
-    private void redirectToTab(Tab tab) {
-        TabPane tabPane = tab.getTabPane();
-        if (tabPane != null) {
-            tabPane.getSelectionModel().select(tab);
-        }
     }
 
     private String getRoleDisplayName(String roleName) {
@@ -1030,5 +1042,21 @@ public class HelloController implements Initializable {
         alert.setHeaderText(header);
         alert.setContentText(content);
         alert.showAndWait();
+    }
+
+    private void redirectToTab(Tab tab) {
+        if (allTabsPane != null) {
+            allTabsPane.getSelectionModel().select(tab);
+        }
+    }
+
+    private void removeTab(Tab tab) {
+        allTabsPane.getTabs().remove(tab);
+    }
+
+    private void restoreTab(int position, Tab tab) {
+        if (!allTabsPane.getTabs().contains(tab)) {
+            allTabsPane.getTabs().add(position, tab);
+        }
     }
 }
