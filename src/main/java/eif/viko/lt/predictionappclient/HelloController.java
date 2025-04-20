@@ -502,28 +502,38 @@ public class HelloController implements Initializable {
     void studentAssignmentRowClicked(MouseEvent event) {
         ChatUserResponse clickedStudent = studentsAssignmentTabTable.getSelectionModel().getSelectedItem();
         List<String> courses = allCourses.stream().map(CourseResponse::getCourseName).toList();
-        List<String> coursesStudentIsIn = allStudents.stream()
-                .filter(s -> s.getStudentName().equals(clickedStudent.getFullName()))
-                .map(StudentCourseResponse::getCourseName)
-                .toList();
-        List<String> filteredCourses = courses.stream().filter(c -> !coursesStudentIsIn.contains(c)).toList();
-        studentsAssignmentTabCoursesComboBox.setItems(FXCollections.observableArrayList(filteredCourses));
-        studentsAssignmentTabCoursesComboBox.valueProperty().addListener((observable, oldValue, newValue) -> {
-            if (newValue != null) {
-                String teacher = allCourses.stream()
-                        .filter(c -> c.getCourseName().equals(newValue))
-                        .findFirst()
-                        .map(CourseResponse::getTeacher)
-                        .orElse("");
-                studentsAssignmentTabTeacherInput.setText(teacher);
-            }
-        });
-        String teacher = allCourses.stream()
-                .filter(c -> c.getCourseName().equals(studentsAssignmentTabCoursesComboBox.getValue()))
-                .findFirst()
-                .map(CourseResponse::getTeacher)
-                .orElse("");
-        studentsAssignmentTabTeacherInput.setText(teacher);
+
+        if (isTeacher) {
+            String teacherName = getFullNameFromEmail(SecureStorage.getEmail());
+            studentsAssignmentTabCoursesComboBox.setItems(FXCollections.observableArrayList(allCourses.stream()
+                    .filter(c -> c.getTeacher().equals(teacherName))
+                    .map(CourseResponse::getCourseName)
+                    .toList()));
+            studentsAssignmentTabTeacherInput.setText(teacherName);
+        } else {
+            List<String> coursesStudentIsIn = allStudents.stream()
+                    .filter(s -> s.getStudentName().equals(clickedStudent.getFullName()))
+                    .map(StudentCourseResponse::getCourseName)
+                    .toList();
+            List<String> filteredCourses = courses.stream().filter(c -> !coursesStudentIsIn.contains(c)).toList();
+            studentsAssignmentTabCoursesComboBox.setItems(FXCollections.observableArrayList(filteredCourses));
+            studentsAssignmentTabCoursesComboBox.valueProperty().addListener((observable, oldValue, newValue) -> {
+                if (newValue != null) {
+                    String teacher = allCourses.stream()
+                            .filter(c -> c.getCourseName().equals(newValue))
+                            .findFirst()
+                            .map(CourseResponse::getTeacher)
+                            .orElse("");
+                    studentsAssignmentTabTeacherInput.setText(teacher);
+                }
+            });
+            String teacher = allCourses.stream()
+                    .filter(c -> c.getCourseName().equals(studentsAssignmentTabCoursesComboBox.getValue()))
+                    .findFirst()
+                    .map(CourseResponse::getTeacher)
+                    .orElse("");
+            studentsAssignmentTabTeacherInput.setText(teacher);
+        }
     }
 
     private void filterStudentsAssignmentTable(String keyword) {
