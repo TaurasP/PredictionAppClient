@@ -670,8 +670,13 @@ public class HelloController implements Initializable {
                                                 @Override
                                                 public void onChatUserSuccess(List<ChatUserResponse> list) {
                                                     Platform.runLater(() -> {
+                                                        final int[] rowCounter = {1};
+                                                        List<ChatUserResponse> sortedList = list.stream()
+                                                                .sorted((a, b) -> a.getFullName().compareToIgnoreCase(b.getFullName()))
+                                                                .peek(course -> course.setRowId(rowCounter[0]++))
+                                                                .toList();
                                                         allStudentsAssignments.clear();
-                                                        allStudentsAssignments.addAll(list);
+                                                        allStudentsAssignments.addAll(sortedList);
                                                         studentsAssignmentTabTable.setItems(allStudentsAssignments);
                                                         studentsAssignmentTabTable.refresh();
                                                         
