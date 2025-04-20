@@ -12,7 +12,7 @@ public class PredictedGradeHistoryServiceImpl {
     private final PredictedGradeHistoryService predictedGradeHistoryService;
 
     public PredictedGradeHistoryServiceImpl() {
-        Retrofit client = ApiClientWithAuth.getClient();
+        Retrofit client = RetrofitClient.getClient();
         predictedGradeHistoryService = client.create(PredictedGradeHistoryService.class);
     }
 

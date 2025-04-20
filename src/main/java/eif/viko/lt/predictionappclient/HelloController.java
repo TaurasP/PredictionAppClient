@@ -798,7 +798,7 @@ public class HelloController implements Initializable {
             // Call the service
             studentCourseService.updateStudentCourse(request, new StudentCourseUpdateCallback() {
                 @Override
-                public void onStudentCourseUpdateSuccess(StudentCourseResponse response) {
+                public void onStudentCourseUpdateSuccess(String response) {
                     Platform.runLater(() -> {
                         showAlert(Alert.AlertType.INFORMATION, "Pranešimas", "Studento įvertinimas",
                                 "Studento pažymiai sėkmingai atnaujinti.");

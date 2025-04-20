@@ -20,5 +20,5 @@ public interface StudentCourseService {
     Call<String> saveStudentCourse(@Body StudentCourseRequest studentCourseRequest);
 
     @PUT("api/student-courses/{id}")
-    Call<StudentCourseResponse> updateStudentCourse(@Path("id") Long id, @Body StudentCourseRequest studentCourseRequest);
+    Call<String> updateStudentCourse(@Path("id") Long id, @Body StudentCourseRequest studentCourseRequest);
 }
