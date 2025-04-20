@@ -457,6 +457,9 @@ public class HelloController implements Initializable {
                 @Override
                 public void onCourseSuccess(String message) {
                     Platform.runLater(() -> {
+                        showAlert(Alert.AlertType.INFORMATION, "Pranešimas", "Dalyko sukūrimas",
+                                "Dalykas " + courseName + " su priskirtu mokytoju " + teacher + " sėkmingai sukurtas.");
+
                         coursesTabCourseNameInput.setText("");
                         coursesTabTeacherComboBox.setValue(null);
                         getCourses(new ActionEvent());
@@ -483,7 +486,7 @@ public class HelloController implements Initializable {
     void getStudents(ActionEvent event) {
         userService.getStudents(new ChaUserCallback() {
             @Override
-            public void onChaUserSuccess(List<ChatUserResponse> list) {
+            public void onChatUserSuccess(List<ChatUserResponse> list) {
                 Platform.runLater(() -> {
                     studentsAssignmentTabTable.setItems(FXCollections.observableArrayList(list));
                     allStudentsAssignments.clear();
@@ -547,11 +550,21 @@ public class HelloController implements Initializable {
 
     @FXML
     void saveStudentCourse(ActionEvent event) {
-        String selectedStudent = studentsAssignmentTabTable.getSelectionModel().getSelectedItem().getFullName();
+        ChatUserResponse selectedStudentObj = studentsAssignmentTabTable.getSelectionModel().getSelectedItem();
+        if (selectedStudentObj == null) {
+            Alert alert = new Alert(Alert.AlertType.WARNING);
+            alert.setTitle("Warning");
+            alert.setHeaderText("No Student Selected");
+            alert.setContentText("Please select a student before saving.");
+            alert.showAndWait();
+            return;
+        }
+        
+        String selectedStudent = selectedStudentObj.getFullName();
         String selectedCourse = studentsAssignmentTabCoursesComboBox.getValue();
         String selectedTeacher = studentsAssignmentTabTeacherInput.getText();
 
-        if (selectedStudent != null && selectedCourse != null && selectedTeacher != null) {
+        if (selectedCourse != null && !selectedCourse.isEmpty() && selectedTeacher != null && !selectedTeacher.isEmpty()) {
             studentCourseService.saveStudentCourse(
                     new StudentCourseRequest(
                             null,
@@ -568,23 +581,88 @@ public class HelloController implements Initializable {
                     new RegisterCallback() {
                         @Override
                         public void onRegisterSuccess(String message) {
+                            Platform.runLater(() -> {
+                                // Reset form fields
+                                studentsAssignmentTabCoursesComboBox.setValue(null);
+                                studentsAssignmentTabTeacherInput.setText("");
+                                
+                                // First update the student courses table
+                                studentCourseService.getStudentCourses(new StudentCourseCallback() {
+                                    @Override
+                                    public void onStudentCourseSuccess(List<StudentCourseResponse> studentCourses) {
+                                        Platform.runLater(() -> {
+                                            allStudents.clear();
+                                            allStudents.addAll(studentCourses);
+                                            studentCoursesTable.refresh();
+                                            
+                                            // Then refresh the students assignment table
+                                            userService.getStudents(new ChaUserCallback() {
+                                                @Override
+                                                public void onChatUserSuccess(List<ChatUserResponse> list) {
+                                                    Platform.runLater(() -> {
+                                                        allStudentsAssignments.clear();
+                                                        allStudentsAssignments.addAll(list);
+                                                        studentsAssignmentTabTable.setItems(allStudentsAssignments);
+                                                        studentsAssignmentTabTable.refresh();
+                                                        
+                                                        // Finally clear selection
+                                                        studentsAssignmentTabTable.getSelectionModel().clearSelection();
 
+                                                        showAlert(Alert.AlertType.INFORMATION, "Pranešimas", "Dalyko priskyrimas studentui",
+                                                                "Dalykas " + selectedCourse + " sėkmingai priskirtas studentui " + selectedStudent  + ".");
+                                                    });
+                                                }
+
+                                                @Override
+                                                public void onChaUserFailure(String errorMessage) {
+                                                    // Handle failure
+                                                    Platform.runLater(() -> {
+                                                        Alert alert = new Alert(Alert.AlertType.ERROR);
+                                                        alert.setTitle("Error");
+                                                        alert.setHeaderText("Failed to refresh student list");
+                                                        alert.setContentText(errorMessage);
+                                                        alert.showAndWait();
+                                                    });
+                                                }
+                                            });
+                                        });
+                                    }
+                                    
+                                    @Override
+                                    public void onStudentCourseFailure(String errorMessage) {
+                                        // Handle failure
+                                        Platform.runLater(() -> {
+                                            Alert alert = new Alert(Alert.AlertType.ERROR);
+                                            alert.setTitle("Error");
+                                            alert.setHeaderText("Failed to refresh student courses");
+                                            alert.setContentText(errorMessage);
+                                            alert.showAndWait();
+                                        });
+                                    }
+                                });
+                            });
                         }
 
                         @Override
                         public void onRegisterFailure(String errorMessage) {
-
+                            Platform.runLater(() -> {
+                                Alert alert = new Alert(Alert.AlertType.ERROR);
+                                alert.setTitle("Error");
+                                alert.setHeaderText("Failed to save student course");
+                                alert.setContentText(errorMessage);
+                                alert.showAndWait();
+                            });
                         }
                     }
-            );
-        } else {
-            Alert alert = new Alert(Alert.AlertType.WARNING);
-            alert.setTitle("Warning");
-            alert.setHeaderText("Incomplete Input");
-            alert.setContentText("Please select a student, course, and teacher before saving.");
-            alert.showAndWait();
-        }
+        );
+    } else {
+        Alert alert = new Alert(Alert.AlertType.WARNING);
+        alert.setTitle("Warning");
+        alert.setHeaderText("Incomplete Input");
+        alert.setContentText("Please select a course and ensure teacher is specified before saving.");
+        alert.showAndWait();
     }
+}
 
 
 
@@ -690,31 +768,65 @@ public class HelloController implements Initializable {
 
     @FXML
     void updateStudentCourse(ActionEvent event, StudentCourseResponse selectedStudent) {
-        Long id = studentCoursesTable.getSelectionModel().getSelectedItem().getId();
-
-        studentCourseService.updateStudentCourse(new StudentCourseRequest(
-                id,
-                selectedStudent.getAttendance(),
-                selectedStudent.getAssignments(),
-                selectedStudent.getMidterm(),
-                selectedStudent.getFinalExam(),
-                selectedStudent.getGrade(),
-                selectedStudent.getPredictedGrade(),
-                null,
-                null,
-                null
-        ), new StudentCourseUpdateCallback() {
-
-            @Override
-            public void onStudentCourseUpdateSuccess(StudentCourseResponse response) {
-                // todo update predicted grades history table
+        if (selectedStudent == null) {
+            selectedStudent = studentCoursesTable.getSelectionModel().getSelectedItem();
+            if (selectedStudent == null) {
+                showAlert(Alert.AlertType.ERROR, "Error", "No student selected",
+                        "Please select a student to update.");
+                return;
             }
+        }
 
-            @Override
-            public void onStudentCourseUpdateFailure(String errorMessage) {
+        Long id = selectedStudent.getId();
+        final StudentCourseResponse finalStudent = selectedStudent; // Need final for lambda
 
-            }
-        });
+        try {
+            // Create the request object
+            StudentCourseRequest request = new StudentCourseRequest(
+                    id,
+                    finalStudent.getAttendance(),
+                    finalStudent.getAssignments(),
+                    finalStudent.getMidterm(),
+                    finalStudent.getFinalExam(),
+                    finalStudent.getGrade(),
+                    finalStudent.getPredictedGrade(),
+                    null,
+                    null,
+                    null
+            );
+
+            // Call the service
+            studentCourseService.updateStudentCourse(request, new StudentCourseUpdateCallback() {
+                @Override
+                public void onStudentCourseUpdateSuccess(StudentCourseResponse response) {
+                    Platform.runLater(() -> {
+                        showAlert(Alert.AlertType.INFORMATION, "Pranešimas", "Studento įvertinimas",
+                                "Studento pažymiai sėkmingai atnaujinti.");
+
+                        attendanceInput.setText("");
+                        assignmentsInput.setText("");
+                        midTermInput.setText("");
+                        finalExamInput.setText("");
+                        gradeInput.setText("");
+                        predictedGradeInput.setText("");
+                        studentCoursesTable.refresh();
+                        getPredictedGradesHistory(new ActionEvent());
+                    });
+                }
+
+                @Override
+                public void onStudentCourseUpdateFailure(String errorMessage) {
+                    Platform.runLater(() -> {
+                        showAlert(Alert.AlertType.ERROR, "Error", "Failed to update student course",
+                                errorMessage);
+                    });
+                }
+            });
+        } catch (Exception e) {
+            showAlert(Alert.AlertType.ERROR, "Error", "Exception during update",
+                    "Error: " + e.getMessage());
+            e.printStackTrace();
+        }
     }
 
 
@@ -813,7 +925,7 @@ public class HelloController implements Initializable {
     void getTeachers(ActionEvent event) {
         userService.getTeachers(new ChaUserCallback() {
             @Override
-            public void onChaUserSuccess(List<ChatUserResponse> list) {
+            public void onChatUserSuccess(List<ChatUserResponse> list) {
                 Platform.runLater(() -> {
                     List<String> emailList = list.stream()
                             .map(user -> getFullNameFromEmail(user.getEmail()))
@@ -877,5 +989,13 @@ public class HelloController implements Initializable {
             }
         }
         throw new IllegalArgumentException("Invalid role: " + roleName);
+    }
+
+    private void showAlert(Alert.AlertType type, String title, String header, String content) {
+        Alert alert = new Alert(type);
+        alert.setTitle(title);
+        alert.setHeaderText(header);
+        alert.setContentText(content);
+        alert.showAndWait();
     }
 }

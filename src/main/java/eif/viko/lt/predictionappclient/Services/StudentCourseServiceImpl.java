@@ -14,7 +14,7 @@ public class StudentCourseServiceImpl {
     private final StudentCourseService studentCourseService;
 
     public StudentCourseServiceImpl() {
-        Retrofit client = ApiClientWithAuth.getClient();
+        Retrofit client = RetrofitClient.getClient();
         studentCourseService = client.create(StudentCourseService.class);
     }
 
