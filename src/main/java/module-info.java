@@ -9,6 +9,7 @@ module eif.viko.lt.predictionappclient {
     requires retrofit2.converter.gson;
     requires okhttp3;
     requires java.desktop;
+    requires retrofit2.converter.scalars;
 
 
     opens eif.viko.lt.predictionappclient.Dto to com.google.gson;

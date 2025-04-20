@@ -456,7 +456,11 @@ public class HelloController implements Initializable {
             courseService.saveCourse(courseName, teacher, new CourseCallback() {
                 @Override
                 public void onCourseSuccess(String message) {
-
+                    Platform.runLater(() -> {
+                        coursesTabCourseNameInput.setText("");
+                        coursesTabTeacherComboBox.setValue(null);
+                        getCourses(new ActionEvent());
+                    });
                 }
 
                 @Override

@@ -40,7 +40,7 @@ public class StudentCourseServiceImpl {
 
     public void saveStudentCourse(StudentCourseRequest request, RegisterCallback callback) {
         Call<String> call = studentCourseService.saveStudentCourse(request);
-        call.enqueue(new retrofit2.Callback<String>() {
+        call.enqueue(new Callback<String>() {
             @Override
             public void onResponse(Call<String> call, Response<String> response) {
                 if (response.isSuccessful() && response.body() != null) {

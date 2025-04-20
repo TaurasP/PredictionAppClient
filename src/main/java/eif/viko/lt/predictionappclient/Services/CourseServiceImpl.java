@@ -2,8 +2,8 @@ package eif.viko.lt.predictionappclient.Services;
 
 import eif.viko.lt.predictionappclient.Entities.CourseRequest;
 import eif.viko.lt.predictionappclient.Entities.CourseResponse;
-import eif.viko.lt.predictionappclient.Entities.StudentCourseResponse;
 import retrofit2.Call;
+import retrofit2.Callback;
 import retrofit2.Response;
 import retrofit2.Retrofit;
 
@@ -23,7 +23,7 @@ public class CourseServiceImpl {
 
     public void saveCourse(String courseName, String teacher, CourseCallback callback) {
         Call<String> call = courseService.saveCourse(new CourseRequest(courseName, extractName(teacher), extractSurname(teacher)));
-        call.enqueue(new retrofit2.Callback<String>() {
+        call.enqueue(new Callback<String>() {
             @Override
             public void onResponse(Call<String> call, Response<String> response) {
                 if (response.isSuccessful() && response.body() != null) {
@@ -43,7 +43,7 @@ public class CourseServiceImpl {
 
     public void getCourses(CourseCallback callback) {
         Call<List<CourseResponse>> call = courseService.getCourses();
-        call.enqueue(new retrofit2.Callback<List<CourseResponse>>() {
+        call.enqueue(new Callback<List<CourseResponse>>() {
             @Override
             public void onResponse(Call<List<CourseResponse>> call, Response<List<CourseResponse>> response) {
                 if (response.isSuccessful() && response.body() != null) {
