@@ -587,11 +587,8 @@ public class HelloController implements Initializable {
     void saveStudentCourse(ActionEvent event) {
         ChatUserResponse selectedStudentObj = studentsAssignmentTabTable.getSelectionModel().getSelectedItem();
         if (selectedStudentObj == null) {
-            Alert alert = new Alert(Alert.AlertType.WARNING);
-            alert.setTitle("Warning");
-            alert.setHeaderText("No Student Selected");
-            alert.setContentText("Please select a student before saving.");
-            alert.showAndWait();
+            showAlert(Alert.AlertType.WARNING, "Įspėjimas", "Nepasirinktas studentas",
+                    "Pasirinkite studentą prieš išsaugant");
             return;
         }
         
@@ -652,11 +649,8 @@ public class HelloController implements Initializable {
                                                 public void onChaUserFailure(String errorMessage) {
                                                     // Handle failure
                                                     Platform.runLater(() -> {
-                                                        Alert alert = new Alert(Alert.AlertType.ERROR);
-                                                        alert.setTitle("Error");
-                                                        alert.setHeaderText("Failed to refresh student list");
-                                                        alert.setContentText(errorMessage);
-                                                        alert.showAndWait();
+                                                        showAlert(Alert.AlertType.WARNING, "Įspėjimas", "Klaida",
+                                                                "Nepavyko atnaujinti studentų sąrašo");
                                                     });
                                                 }
                                             });
@@ -667,11 +661,8 @@ public class HelloController implements Initializable {
                                     public void onStudentCourseFailure(String errorMessage) {
                                         // Handle failure
                                         Platform.runLater(() -> {
-                                            Alert alert = new Alert(Alert.AlertType.ERROR);
-                                            alert.setTitle("Error");
-                                            alert.setHeaderText("Failed to refresh student courses");
-                                            alert.setContentText(errorMessage);
-                                            alert.showAndWait();
+                                            showAlert(Alert.AlertType.WARNING, "Įspėjimas", "Klaida",
+                                                    "Nepavyko atnaujinti studentų sąrašo");
                                         });
                                     }
                                 });
@@ -681,21 +672,15 @@ public class HelloController implements Initializable {
                         @Override
                         public void onRegisterFailure(String errorMessage) {
                             Platform.runLater(() -> {
-                                Alert alert = new Alert(Alert.AlertType.ERROR);
-                                alert.setTitle("Error");
-                                alert.setHeaderText("Failed to save student course");
-                                alert.setContentText(errorMessage);
-                                alert.showAndWait();
+                                showAlert(Alert.AlertType.WARNING, "Įspėjimas", "Klaida",
+                                        "Nepavyko išsaugoti studentų sąrašo");
                             });
                         }
                     }
         );
     } else {
-        Alert alert = new Alert(Alert.AlertType.WARNING);
-        alert.setTitle("Warning");
-        alert.setHeaderText("Incomplete Input");
-        alert.setContentText("Please select a course and ensure teacher is specified before saving.");
-        alert.showAndWait();
+        showAlert(Alert.AlertType.WARNING, "Įspėjimas", "Trūksta duomenų",
+                "Pasirinkite dalyką ir įsitikinkite, kad yra nurodytas mokytojas");
     }
 }
 
@@ -727,11 +712,8 @@ public class HelloController implements Initializable {
             @Override
             public void onStudentCourseFailure(String errorMessage) {
                 Platform.runLater(() -> {
-                    Alert alert = new Alert(Alert.AlertType.ERROR);
-                    alert.setTitle("Error");
-                    alert.setHeaderText("Failed to load student courses");
-                    alert.setContentText(errorMessage);
-                    alert.showAndWait();
+                    showAlert(Alert.AlertType.ERROR, "Įspėjimas", "Klaida",
+                            "Nepavyko atvaizduoti studentų sąrašo");
                 });
             }
         });
@@ -815,8 +797,8 @@ public class HelloController implements Initializable {
         if (selectedStudent == null) {
             selectedStudent = studentCoursesTable.getSelectionModel().getSelectedItem();
             if (selectedStudent == null) {
-                showAlert(Alert.AlertType.ERROR, "Error", "No student selected",
-                        "Please select a student to update.");
+                showAlert(Alert.AlertType.ERROR, "Klaida", "Nepasirinktas studentas",
+                        "Pasirinkite studentą");
                 return;
             }
         }
@@ -861,14 +843,14 @@ public class HelloController implements Initializable {
                 @Override
                 public void onStudentCourseUpdateFailure(String errorMessage) {
                     Platform.runLater(() -> {
-                        showAlert(Alert.AlertType.ERROR, "Error", "Failed to update student course",
-                                errorMessage);
+                        showAlert(Alert.AlertType.ERROR, "Klaida", "Klaida",
+                                "Nepavyko atnaujinti studentų sąrašo");
                     });
                 }
             });
         } catch (Exception e) {
-            showAlert(Alert.AlertType.ERROR, "Error", "Exception during update",
-                    "Error: " + e.getMessage());
+            showAlert(Alert.AlertType.ERROR, "Klaida", "Klaida atnaujinant duomenis",
+                    "Klaida: " + e.getMessage());
             e.printStackTrace();
         }
     }
@@ -910,11 +892,8 @@ public class HelloController implements Initializable {
             @Override
             public void onFailure(String errorMessage) {
                 Platform.runLater(() -> {
-                    Alert alert = new Alert(Alert.AlertType.ERROR);
-                    alert.setTitle("Error");
-                    alert.setHeaderText("Failed to Load Predicted Grades History");
-                    alert.setContentText(errorMessage);
-                    alert.showAndWait();
+                    showAlert(Alert.AlertType.ERROR, "Klaida", "Klaida",
+                            "Nepavyko atnaujinti pažymių prognozės");
                 });
             }
         });
