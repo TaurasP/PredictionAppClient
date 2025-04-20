@@ -216,6 +216,7 @@ public class HelloController implements Initializable {
     private boolean isTeacher = false;
     private boolean isStudent = false;
     private final BooleanProperty isPredictedGradeSearchVisible = new SimpleBooleanProperty(false);
+    private final BooleanProperty isTeacherInStudentCoursesVisible = new SimpleBooleanProperty(false);
 
 
     @Override
@@ -325,6 +326,8 @@ public class HelloController implements Initializable {
 
                         predictedGradesStudentCol.visibleProperty().bind(isPredictedGradeSearchVisible);
                         isPredictedGradeSearchVisible.set(!isStudent);
+                        teacherNameCol.visibleProperty().bind(isTeacherInStudentCoursesVisible);
+                        isTeacherInStudentCoursesVisible.set(!isTeacher);
 
                         redirectToTab(profileTab);
 //                    studentsAssignmentTabCoursesComboBox.setItems(FXCollections.observableArrayList(allCourses.stream().map(CourseResponse::getCourseName).toList()));
@@ -680,11 +683,20 @@ public class HelloController implements Initializable {
             @Override
             public void onStudentCourseSuccess(List<StudentCourseResponse> studentCourses) {
                 Platform.runLater(() -> {
+                    List<StudentCourseResponse> filteredCourses = studentCourses;
+                    if (isTeacher) {
+                        String teacherName = getFullNameFromEmail(SecureStorage.getEmail());
+                        final int[] rowCounter = {1};
+                        filteredCourses = studentCourses.stream()
+                                .filter(course -> course.getTeacherName().equals(teacherName))
+                                .peek(course -> course.setRowId(rowCounter[0]++))
+                                .toList();
+                    }
                     ObservableList<StudentCourseResponse> items = studentCoursesTable.getItems();
                     items.clear();
-                    items.addAll(studentCourses);
+                    items.addAll(filteredCourses);
                     allStudents.clear();
-                    allStudents.setAll(studentCourses);
+                    allStudents.setAll(filteredCourses);
                 });
             }
             @Override
