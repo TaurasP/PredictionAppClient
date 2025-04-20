@@ -330,7 +330,6 @@ public class HelloController implements Initializable {
                         isTeacherInStudentCoursesVisible.set(!isTeacher);
 
                         redirectToTab(profileTab);
-//                    studentsAssignmentTabCoursesComboBox.setItems(FXCollections.observableArrayList(allCourses.stream().map(CourseResponse::getCourseName).toList()));
                     });
                     }
 
@@ -488,9 +487,14 @@ public class HelloController implements Initializable {
             @Override
             public void onChatUserSuccess(List<ChatUserResponse> list) {
                 Platform.runLater(() -> {
-                    studentsAssignmentTabTable.setItems(FXCollections.observableArrayList(list));
+                    final int[] rowCounter = {1};
+                    List<ChatUserResponse> filteredList = list.stream()
+                            .sorted((a, b) -> a.getFullName().compareToIgnoreCase(b.getFullName()))
+                            .peek(course -> course.setRowId(rowCounter[0]++))
+                            .toList();
+                    studentsAssignmentTabTable.setItems(FXCollections.observableArrayList(filteredList));
                     allStudentsAssignments.clear();
-                    allStudentsAssignments.setAll(list);
+                    allStudentsAssignments.setAll(filteredList);
                 });
             }
 
