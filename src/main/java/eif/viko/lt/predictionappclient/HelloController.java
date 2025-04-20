@@ -292,6 +292,9 @@ public class HelloController implements Initializable {
                         isTeacher = SecureStorage.getRole() != null && SecureStorage.getRole().equals(Role.TEACHER.name());
                         isStudent = SecureStorage.getRole() != null && SecureStorage.getRole().equals(Role.STUDENT.name());
 
+                        studentsAssignmentTabCoursesComboBox.setDisable(true);
+                        studentsAssignmentTabSaveBtn.setDisable(true);
+
                         authPanelBox.setVisible(false);
                         username.setText("");
                         password.setText("");
@@ -528,16 +531,39 @@ public class HelloController implements Initializable {
 
     @FXML
     void studentAssignmentRowClicked(MouseEvent event) {
+        studentsAssignmentTabCoursesComboBox.setDisable(false);
+        studentsAssignmentTabSaveBtn.setDisable(false);
         ChatUserResponse clickedStudent = studentsAssignmentTabTable.getSelectionModel().getSelectedItem();
         List<String> courses = allCourses.stream().map(CourseResponse::getCourseName).toList();
 
         if (isTeacher) {
             String teacherName = getFullNameFromEmail(SecureStorage.getEmail());
-            studentsAssignmentTabCoursesComboBox.setItems(FXCollections.observableArrayList(allCourses.stream()
-                    .filter(c -> c.getTeacher().equals(teacherName))
+            List<String> coursesStudentIsIn = allStudents.stream()
+                    .filter(s -> s.getStudentName().equals(clickedStudent.getFullName()))
+                    .map(StudentCourseResponse::getCourseName)
+                    .toList();
+            List<String> filteredCourses = allCourses.stream()
+                    .filter(c -> c.getTeacher().equals(teacherName) && !coursesStudentIsIn.contains(c.getCourseName()))
                     .map(CourseResponse::getCourseName)
-                    .toList()));
-            studentsAssignmentTabTeacherInput.setText(teacherName);
+                    .toList();
+            if (filteredCourses.isEmpty()) {
+                studentsAssignmentTabCoursesComboBox.setDisable(true);
+                studentsAssignmentTabSaveBtn.setDisable(true);
+                studentCoursesTable.setItems(allStudents);
+            } else {
+                studentsAssignmentTabCoursesComboBox.setItems(FXCollections.observableArrayList(filteredCourses));
+                studentsAssignmentTabTeacherInput.setText(teacherName);
+                studentsAssignmentTabCoursesComboBox.valueProperty().addListener((observable, oldValue, newValue) -> {
+                    if (newValue != null) {
+                        String teacher = allCourses.stream()
+                                .filter(c -> c.getCourseName().equals(newValue))
+                                .findFirst()
+                                .map(CourseResponse::getTeacher)
+                                .orElse("");
+                        studentsAssignmentTabTeacherInput.setText(teacher);
+                    }
+                });
+            }
         } else {
             List<String> coursesStudentIsIn = allStudents.stream()
                     .filter(s -> s.getStudentName().equals(clickedStudent.getFullName()))
@@ -623,8 +649,20 @@ public class HelloController implements Initializable {
                                     @Override
                                     public void onStudentCourseSuccess(List<StudentCourseResponse> studentCourses) {
                                         Platform.runLater(() -> {
+                                            List<StudentCourseResponse> filteredCourses = studentCourses;
+                                            if (isTeacher) {
+                                                String teacherName = getFullNameFromEmail(SecureStorage.getEmail());
+                                                final int[] rowCounter = {1};
+                                                filteredCourses = studentCourses.stream()
+                                                        .filter(course -> course.getTeacherName().equals(teacherName))
+                                                        .sorted((a, b) -> a.getCourseName().compareToIgnoreCase(b.getCourseName()))
+                                                        .peek(course -> course.setRowId(rowCounter[0]++))
+                                                        .toList();
+                                            }
+
                                             allStudents.clear();
-                                            allStudents.addAll(studentCourses);
+                                            allStudents.addAll(filteredCourses);
+                                            studentCoursesTable.setItems(allStudents);
                                             studentCoursesTable.refresh();
                                             
                                             // Then refresh the students assignment table
@@ -639,6 +677,8 @@ public class HelloController implements Initializable {
                                                         
                                                         // Finally clear selection
                                                         studentsAssignmentTabTable.getSelectionModel().clearSelection();
+                                                        studentsAssignmentTabCoursesComboBox.setDisable(true);
+                                                        studentsAssignmentTabSaveBtn.setDisable(true);
 
                                                         showAlert(Alert.AlertType.INFORMATION, "Pranešimas", "Dalyko priskyrimas studentui",
                                                                 "Dalykas " + selectedCourse + " sėkmingai priskirtas studentui " + selectedStudent  + ".");
@@ -732,6 +772,15 @@ public class HelloController implements Initializable {
 
     private void filterStudentsTable(String keyword) {
         if (keyword == null || keyword.trim().isEmpty()) {
+            if (isTeacher) {
+                String teacherName = getFullNameFromEmail(SecureStorage.getEmail());
+                studentCoursesTable.setItems(FXCollections.observableArrayList(
+                        allStudents.stream()
+                                .filter(s -> s.getTeacherName().equals(teacherName))
+                                .toList()
+                ));
+            }
+
             studentCoursesTable.setItems(allStudents);
             return;
         }
@@ -787,7 +836,7 @@ public class HelloController implements Initializable {
             selectedStudent.setPredictedGrade(predictedGradeInput.getText());
         }
 
-        studentCoursesTable.setItems(allStudents); // Refresh the TableView with updated data
+        studentCoursesTable.setItems(allStudents);
         studentCoursesTable.refresh();
         updateStudentCourse(null, selectedStudent);
     }
